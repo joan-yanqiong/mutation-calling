@@ -1,7 +1,6 @@
-# mutation-calling
-Mutation Calling Pipelines
+# Mutation Calling Pipelines
 
-Directories
+## Directories
 
 rna-mutect-pipeline: Contains the scripts required to run rna-mutect.
   - pre_processing: pre-processing scripts for the RNA and DNA FASTQ files
