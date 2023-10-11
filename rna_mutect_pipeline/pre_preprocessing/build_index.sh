@@ -1,10 +1,10 @@
 #!/bin/bash
 
-#SBATCH -p himem 
-#SBATCH -t 0-10:00 
+#SBATCH -p himem
+#SBATCH -t 0-10:00
 #SBATCH -c 6
-#SBATCH --mem=40G 
-#SBATCH --job-name STAR_index		
+#SBATCH --mem=40G
+#SBATCH --job-name STAR_index
 #SBATCH -o /cluster/projects/gaitigroup/Users/Jahin/Logs/%x-%j.out
 
 genome_dir=$1 # Directory for genome indices to be stored
