@@ -4,7 +4,7 @@
 #SBATCH -t 0-10:00
 #SBATCH -c 6
 #SBATCH --mem=40G
-#SBATCH --job-name bqsr_table_single	
+#SBATCH --job-name bqsr_table_single
 #SBATCH -o /cluster/projects/gaitigroup/Users/Jahin/Logs/%x-%j.out
 
 module load gatk

@@ -4,7 +4,7 @@
 #SBATCH -t 0-10:00
 #SBATCH -c 6
 #SBATCH --mem=40G
-#SBATCH --job-name mutect_loop		
+#SBATCH --job-name mutect_loop
 #SBATCH -o /cluster/projects/gaitigroup/Users/Jahin/Logs/%x-%j.out
 
 module load mutect/1.1.5
@@ -26,4 +26,3 @@ do
     sbatch ${script_path}/mutect.sh ${ref_path} ${cosmic_vcf} ${dbSNP_vcf} ${run_id}
     cd ..
 done
-

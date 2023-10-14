@@ -1,15 +1,18 @@
 #!/bin/bash
-
-# The command below was to retrieve the patient ID corresponding to the run ID from a csv file, but
-# I think this is unnecessary. Any unique number for the read group will do, so the run_id should suffice.
-# sample_id=$(cat ${csv_path} | grep ${run_id} | awk -F ',' '{print $2}')
+echo "Loading picard module..."
 module load picard/2.10.9
 
-java -jar "${picard_dir}/picard.jar AddOrReplaceReadGroups" \
-    I=${run_id}.bam \
-    O=${run_id}_read_groups.bam \
-    RGID=${i} \
-    RGLB=lib_${i} \
+echo "Creating directory for output..."
+mkdir -p "${sample_id}"
+
+echo "Adding read groups to ${sample_id}..."
+java -jar \${picard_dir}/picard.jar AddOrReplaceReadGroups \
+    I="${mapped_bam}" \
+    O="${sample_id}/${sample_id}_Aligned.sortedByCoord.out_read_groups.bam" \
+    RGID=${ix} \
+    RGLB=lib_${ix} \
     RGPL=ILLUMINA \
-    RGPU=ILLUMINA_${run_id}_lib${i} \
-    RGSM=${run_id}
+    RGPU=ILLUMINA_${sample_id}_lib${ix} \
+    RGSM=${sample_id}
+
+echo "COMPLETED!"

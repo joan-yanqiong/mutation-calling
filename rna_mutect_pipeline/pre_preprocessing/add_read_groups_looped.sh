@@ -3,14 +3,14 @@
 #SBATCH -p all
 #SBATCH -t 0-6:00
 #SBATCH -c 6
-#SBATCH --mem=4G 
-#SBATCH --job-name read_groups_loop		
+#SBATCH --mem=4G
+#SBATCH --job-name read_groups_loop
 #SBATCH -o /cluster/projects/gaitigroup/Users/Jahin/Logs/%x-%j.out
 
 module load picard/2.10.9
 
 directory=$1 # output directory
-# csv_path="/cluster/projects/gaitigroup/Users/Jahin/SRR_to_GSM_mappings.csv" 
+# csv_path="/cluster/projects/gaitigroup/Users/Jahin/SRR_to_GSM_mappings.csv"
 script_path="/cluster/projects/gaitigroup/Users/Jahin/Scripts/pipeline_scripts"
 
 cd $directory

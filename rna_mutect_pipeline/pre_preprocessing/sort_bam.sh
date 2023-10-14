@@ -4,7 +4,7 @@
 #SBATCH -t 0-6:00
 #SBATCH -c 6
 #SBATCH --mem=20G
-#SBATCH --job-name sort_bam		
+#SBATCH --job-name sort_bam
 #SBATCH -o /cluster/projects/gaitigroup/Users/Jahin/Logs/%x-%j.out
 
 run_id=$1

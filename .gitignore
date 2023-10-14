@@ -1,3 +1,12 @@
+data/
 .history/
 .nextflow/
 .DS_Store
+slurm_out/
+output/
+._.**
+._**
+.nextflow*
+logs/
+misc/
+tmp/

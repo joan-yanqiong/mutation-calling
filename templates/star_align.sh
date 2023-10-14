@@ -2,26 +2,33 @@
 echo "Loading STAR module..."
 module load STAR
 
-fq1="${sample_fastq_dir}/*_1.fastq"
-fq2="${sample_fastq_dir}/*_2.fastq"
+# Change name to prevent overwriting w/ nextflow
+mv $fastq_dir ${fastq_dir}_fastq
 
+echo Sample/Run ID: ${sample_id}
 
-if [ -d ${output_prefix}/$(basename ${sample_fastq_dir}) ];
+fq1="${fastq_dir}_fastq/*_1.fastq"
+fq2="${fastq_dir}_fastq/*_2.fastq"
+
+echo \${fq1}
+echo \${fq2}
+
+if [ -d ${sample_id} ];
 then
     echo "Output directory already present. Deleting..."
-    rm -r ${output_prefix}/$(basename ${sample_fastq_dir})
+    rm -r ${sample_id}
     echo "Existing output directory deleted."
 fi
 
 echo "Making directory for output..."
-mkdir ${output_prefix}/$(basename ${sample_fastq_dir})
+mkdir -p "${sample_id}/mapped"
 
 echo "Running STAR on reads..."
 # Parameters from Supp Table 12
-STAR --genomeDir ${genome_dir} \
+STAR --genomeDir ${index_dir} \
 --runThreadN 6 \
---readFilesIn ${fq1} ${fq2} \
---outFileNamePrefix ${output_prefix}/$(basename ${sample_fastq_dir}) \
+--readFilesIn \${fq1} \${fq2} \
+--outFileNamePrefix "${sample_id}/mapped/${sample_id}_" \
 --outSAMtype BAM SortedByCoordinate \
 --outFilterMultimapNmax 20 \
 --alignSJoverhangMin 8 \

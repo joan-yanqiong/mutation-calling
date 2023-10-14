@@ -4,7 +4,7 @@
 #SBATCH -t 0-10:00
 #SBATCH -c 6
 #SBATCH --mem=40G
-#SBATCH --job-name indel_realign_target_loop	
+#SBATCH --job-name indel_realign_target_loop
 #SBATCH -o /cluster/projects/gaitigroup/Users/Jahin/Logs/%x-%j.out
 
 prefix="/cluster/projects/gaitigroup/Users/Jahin"

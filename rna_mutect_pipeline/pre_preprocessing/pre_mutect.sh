@@ -52,7 +52,7 @@ do
     i=`expr $i + 1`
 
     jid1=$(sbatch ${script_path}/map_reads.sh ${output_dir}/STAR_index ${output_dir} ${run_id} | sed 's/Submitted batch job //')
-    
+
     jid2=$(sbatch -d=afterok:$jid1 ${script_path}/add_read_groups.sh $i ${run_id} | sed 's/Submitted batch job //')
 
     jid3=$(sbatch -d=afterok:$jid2 ${script_path}/mark_duplicates.sh ${run_id} | sed 's/Submitted batch job //')
