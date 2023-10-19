@@ -13,13 +13,13 @@ process MUTECT_R1 {
     publishDir "${projectDir}/output/tumor", mode: "copy"
 
     input:
-    tuple val(sample_id), path(recal_bam), path(recal_bai)
+    tuple val(ix), val(sample_id), path(recal_bam), path(recal_bai)
     tuple path(ref_path), path(ref_path_dict), path(ref_path_fai)
     tuple path(dbSNP_vcf), path(dbSNP_vcf_idx)
     tuple path(cosmic_vcf), path(cosmic_vcf_idx)
 
     output:
-    tuple val(sample_id), path("${sample_id}/${sample_id}_mutect.vcf"), path("${sample_id}/${sample_id}_mutect.vcf.idx"), emit: output
+    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_mutect.vcf"), path("${sample_id}/${sample_id}_mutect.vcf.idx"), emit: output
     path "${sample_id}/${sample_id}_call_stats.txt", emit: call_stats
 
     script:
@@ -27,8 +27,6 @@ process MUTECT_R1 {
 }
 
 process ONCOTATOR {
-    publishDir "${projectDir}/output/tumor", mode: "copy"
-
     /*
     Summary: Annotate mutations obtained with Mutect
 
@@ -47,10 +45,10 @@ process ONCOTATOR {
     publishDir "${projectDir}/output/tumor", mode: "copy"
 
     input:
-    tuple val(sample_id), path(mutect_vcf), path(mutect_vcf_index)
+    tuple val(ix),val(sample_id), path(mutect_vcf), path(mutect_vcf_index)
 
     output:
-    tuple val(sample_id), path("${sample_id}/${sample_id}_onco.maf"), path(mutect_vcf_index), emit: onco_maf
+    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_onco.maf"), path(mutect_vcf_index), emit: onco_maf
     path "${sample_id}/oncotator.log"
 
     script:

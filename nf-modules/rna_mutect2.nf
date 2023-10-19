@@ -23,11 +23,11 @@ process TUMOR_REALIGN_PREPROCESS {
 
     input:
     path jar_files
-    tuple val(sample_id), val(normal_id), val(pair_id), path(maf), path(maf_idx), path(recal_bam), path(recal_bai)
+    tuple val(ix), val(sample_id), val(normal_id), val(pair_id), path(maf), path(maf_idx), path(recal_bam), path(recal_bai)
     tuple path(ref_path), path(ref_path_dict), path(ref_path_fai)
 
     output:
-    tuple val(sample_id), path("${sample_id}/snp_mutations.intervals"),
+    tuple val(ix), val(sample_id), path("${sample_id}/snp_mutations.intervals"),
     path("${sample_id}/snp_mutations.intervals.bed"), emit: snp_mut_intervals
     path "${sample_id}/IDs_all.txt"
     path "${sample_id}/tmp_bam.bam"
@@ -59,7 +59,7 @@ process NORMAL_REALIGN_PREPROCESS {
 
     input:
     path jar_files
-    tuple  val(tumor_id), val(normal_id), val(pair_id), path(maf), path(maf_idx), path(recal_bam), path(recal_bai)
+    tuple val(ix), val(tumor_id), val(normal_id), val(pair_id), path(maf), path(maf_idx), path(recal_bam), path(recal_bai)
     tuple path(ref_path), path(ref_path_dict), path(ref_path_fai)
 
     output:
@@ -70,10 +70,7 @@ process NORMAL_REALIGN_PREPROCESS {
     path "${normal_id}/tmp_header_T.sam"
     path "${normal_id}/tmp0_T.sam"
     path "${normal_id}/tmp_filteredbamT.sam"
-    // tuple val(normal_id), val(tumor_id), val(pair_id),
-    // path("${normal_id}/${pair_id}_tmp_sequence_1.fastq"),
-    // path("${normal_id}/${pair_id}_tmp_sequence_2.fastq"), emit: output
-    tuple val(tumor_id), val(normal_id),  val(pair_id),
+    tuple val(ix), val(tumor_id), val(normal_id),  val(pair_id),
     path("${normal_id}/${pair_id}_tmp_sequence_1.fastq"),
     path("${normal_id}/${pair_id}_tmp_sequence_2.fastq"), val("normal"), emit: output
 
@@ -155,10 +152,10 @@ process TUMOR_HISAT_ALIGN {
 
     input:
     path index_dir
-    tuple val(tumor_id), val(normal_id), val(pair_id), path(fastq1), path(fastq2), val(sample_type)
+    tuple val(ix), val(tumor_id), val(normal_id), val(pair_id), path(fastq1), path(fastq2), val(sample_type)
 
     output:
-    tuple val(tumor_id), path("${tumor_id}/${tumor_id}.aligned.sorted_by_coord.hisat2.sam")
+    tuple val(ix), val(tumor_id), path("${tumor_id}/${tumor_id}.aligned.sorted_by_coord.hisat2.sam")
 
     script:
     template "hisat_align.sh"
@@ -183,10 +180,10 @@ process PAIR_HISAT_ALIGN {
 
     input:
     path index_dir
-    tuple val(tumor_id), val(normal_id), val(pair_id), path(fastq1), path(fastq2), val(sample_type)
+    tuple val(ix), val(tumor_id), val(normal_id), val(pair_id), path(fastq1), path(fastq2), val(sample_type)
 
     output:
-    tuple path(tumor_id), path("${normal_id}/${pair_id}.aligned.sorted_by_coord.hisat2.sam")
+    tuple val(ix), path(tumor_id), path("${normal_id}/${pair_id}.aligned.sorted_by_coord.hisat2.sam")
 
     script:
     template "hisat_align.sh"
@@ -219,7 +216,7 @@ process MUTECT_R2 {
     tuple path(ref_path), path(ref_path_dict), path(ref_path_fai)
     tuple path(dbSNP_vcf), path(dbSNP_vcf_idx)
     tuple path(cosmic_vcf), path(cosmic_vcf_idx)
-    tuple val(sample_id), path(tumor_hisat_bam), path(normal_tumor_hisat_bam), path(snp_mut_intervals), path(snp_mut_intervals_bed)
+    tuple val(ix), val(sample_id), path(tumor_hisat_bam), path(normal_tumor_hisat_bam), path(snp_mut_intervals), path(snp_mut_intervals_bed)
 
     output:
     path "${sample_id}/${sample_id}_second_call_stats.*"

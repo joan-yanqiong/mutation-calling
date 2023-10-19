@@ -39,12 +39,14 @@ workflow BUILD_INDICES {
         hisat_index = file(params.hisat_index_dir)
     }
 
-    // println """\
-    // ---- BUILD INDICES ----
-    // BWA index: ${bwa_index}
-    // STAR index: ${star_index}
-    // HISAT index: ${hisat_index}
-    // """.stripIndent()
+    println """\
+    =======================
+    ---- BUILD INDICES ----
+    =======================
+    BWA index: ${bwa_index}
+    STAR index: ${star_index}
+    HISAT index: ${hisat_index}
+    """.stripIndent()
 
     emit:
     hisat_index = hisat_index

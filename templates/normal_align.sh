@@ -22,7 +22,6 @@ echo "Running bwa-mem on reads..."
 
 bwa mem \
  -M \
- -R "@RG\tID:1\tLB:lib_1\tPL:ILLUMINA\tSM:${sample_id}\tPU:ILLUMINA_${sample_id}_lib1" \
  ${genome_dir} \
  \$fq1 \
  \$fq2 \

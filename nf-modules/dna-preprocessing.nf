@@ -1,3 +1,20 @@
+process ADD_READ_GROUPS_NORMAL {
+    /* ADD READ GROUPS
+    */
+
+    publishDir "${projectDir}/output/normal", mode: "copy"
+
+    input:
+    tuple val(ix), val(sample_id), path(mapped_bam)
+    val sample_type
+
+    output:
+    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_read_groups.bam"), emit: output
+
+    script:
+    template "add_read_groups.sh"
+}
+
 process SORT_BAM {
     /*
     Summary: Sorts the input SAM or BAM file by queryname
@@ -15,10 +32,10 @@ process SORT_BAM {
     publishDir "${projectDir}/output/normal", mode: "copy"
 
     input:
-    tuple val(sample_id), path(read_groups_bam)
+    tuple val(ix), val(sample_id), path(read_groups_bam)
 
     output:
-    tuple val(sample_id), path("${sample_id}/${sample_id}_sorted.bam"), emit: output
+    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_sorted.bam"), emit: output
 
     script:
     template "sort_bam.sh"
@@ -42,11 +59,11 @@ process NORMAL_MARK_DUPLICATES {
     publishDir "${projectDir}/output/normal", mode: "copy"
 
     input:
-    tuple val(sample_id), path(read_groups_file)
+    tuple val(ix), val(sample_id), path(read_groups_file)
 
     output:
     path "${sample_id}/${sample_id}_marked_dup_metrics.txt", emit: metrics_file
-    tuple val(sample_id), path("${sample_id}/${sample_id}_marked_dup.bam"), emit: output
+    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_marked_dup.bam"), emit: output
 
     script:
     template "mark_duplicates.sh"
@@ -75,13 +92,13 @@ process INDEL_REALIGN_TARGET {
     publishDir "${projectDir}/output/normal", mode: "copy"
 
     input:
-    tuple val(sample_id), path(marked_dup_bam)
+    tuple val(ix), val(sample_id), path(marked_dup_bam)
     tuple path(indel_db1), path(indel_db1_idx)
     tuple path(indel_db2), path(indel_db2_idx)
     tuple path(ref_path), path(ref_path_dict), path(ref_path_fai)
 
     output:
-    tuple val(sample_id), path("${sample_id}/${sample_id}_marked_dup_sorted_coord.bam"), path("${sample_id}/${sample_id}_marked_dup_sorted_coord.bam.bai"), path("${sample_id}/${sample_id}_realigner.intervals"), emit: output
+    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_marked_dup_sorted_coord.bam"), path("${sample_id}/${sample_id}_marked_dup_sorted_coord.bam.bai"), path("${sample_id}/${sample_id}_realigner.intervals"), emit: output
 
     script:
     template "indel_realign_target.sh"
@@ -105,13 +122,13 @@ process INDEL_REALIGNER {
     publishDir "${projectDir}/output/normal", mode: "copy"
 
     input:
-    tuple val(sample_id), path(marked_dup_bam), path(marked_dup_bai), path(realigner_intervals)
+    tuple val(ix), val(sample_id), path(marked_dup_bam), path(marked_dup_bai), path(realigner_intervals)
     tuple path(indel_db1), path(indel_db1_idx)
     tuple path(indel_db2), path(indel_db2_idx)
     tuple path(ref_path), path(ref_path_dict), path(ref_path_fai)
 
     output:
-    tuple val(sample_id),
+    tuple val(ix), val(sample_id),
     path("${sample_id}/${sample_id}_realigned.bam"), path("${sample_id}/${sample_id}_realigned.bai"), emit: output
 
     script:
@@ -137,12 +154,12 @@ process NORMAL_BQSR_TABLE {
     publishDir "${projectDir}/output/normal", mode: "copy"
 
     input:
-    tuple val(sample_id), path(bam_file), path(bai_file)
+    tuple val(ix), val(sample_id), path(bam_file), path(bai_file)
     tuple path(ref_path), path(ref_path_dict), path(ref_path_fai)
     tuple path(dbSNP_vcf), path(dbSNP_vcf_idx)
 
     output:
-    tuple val(sample_id), path(bam_file), path("${sample_id}/${sample_id}_recal_data.table"), emit: output
+    tuple val(ix), val(sample_id), path(bam_file), path("${sample_id}/${sample_id}_recal_data.table"), emit: output
 
     script:
     template "bqsr_table.sh"
@@ -163,11 +180,11 @@ process NORMAL_APPLY_BQSR {
     Ref: https://gatk.broadinstitute.org/hc/en-us/articles/360037055712-ApplyBQSR
     */
     input:
-    tuple val(sample_id), path(bam_file), path(recal_data_table)
+    tuple val(ix), val(sample_id), path(bam_file), path(recal_data_table)
     tuple path(ref_path), path(ref_path_dict), path(ref_path_fai)
 
     output:
-    tuple val(sample_id), path("${sample_id}/${sample_id}_recal.bam"), path("${sample_id}/${sample_id}_recal.bai"), emit: output
+    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_recal.bam"), path("${sample_id}/${sample_id}_recal.bai"), emit: output
 
     script:
     template "apply_bqsr.sh"

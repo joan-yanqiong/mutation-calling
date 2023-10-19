@@ -6,9 +6,10 @@ process ADD_READ_GROUPS {
 
     input:
     tuple val(ix), val(sample_id), path(mapped_bam)
+    val(sample_type)
 
     output:
-    tuple val(sample_id), path("${sample_id}/${sample_id}_Aligned.sortedByCoord.out_read_groups.bam"), emit: output
+    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_Aligned.sortedByCoord.out_read_groups.bam"), emit: output
 
     script:
     template "add_read_groups.sh"
@@ -31,11 +32,11 @@ process MARK_DUPLICATES {
     publishDir "${projectDir}/output/tumor", mode: "copy"
 
     input:
-    tuple val(sample_id), path(read_groups_file)
+    tuple val(ix), val(sample_id), path(read_groups_file)
 
     output:
     path "${sample_id}/${sample_id}_marked_dup_metrics.txt", emit: metrics_file
-    tuple val(sample_id), path("${sample_id}/${sample_id}_marked_dup.bam"), emit: output
+    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_marked_dup.bam"), emit: output
 
     script:
     template "mark_duplicates.sh"
@@ -59,11 +60,11 @@ process SPLIT_CIGARS {
     publishDir "${projectDir}/output/tumor", mode: "copy"
 
     input:
-    tuple val(sample_id), path(marked_dup_bam)
+    tuple val(ix), val(sample_id), path(marked_dup_bam)
     tuple path(ref_path), path(ref_path_dict), path(ref_path_fai)
 
     output:
-    tuple val(sample_id), path("${sample_id}/${sample_id}_split.bam"),
+    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_split.bam"),
     path("${sample_id}/${sample_id}_split.bai"), emit: output
 
     script:
@@ -89,12 +90,12 @@ process BQSR_TABLE {
     publishDir "${projectDir}/output/tumor", mode: "copy"
 
     input:
-    tuple val(sample_id), path(bam_file), path(bai_file)
+    tuple val(ix), val(sample_id), path(bam_file), path(bai_file)
     tuple path(ref_path), path(ref_path_dict), path(ref_path_fai)
     tuple path(dbSNP_vcf), path(dbSNP_vcf_idx)
 
     output:
-    tuple val(sample_id), path(bam_file), path("${sample_id}/${sample_id}_recal_data.table"), emit: output
+    tuple val(ix), val(sample_id), path(bam_file), path("${sample_id}/${sample_id}_recal_data.table"), emit: output
 
     script:
     template "bqsr_table.sh"
@@ -118,11 +119,11 @@ process APPLY_BQSR {
     publishDir "${projectDir}/output/tumor", mode: "copy"
 
     input:
-    tuple val(sample_id), path(bam_file), path(recal_data_table)
+    tuple val(ix), val(sample_id), path(bam_file), path(recal_data_table)
     tuple path(ref_path), path(ref_path_dict), path(ref_path_fai)
 
     output:
-    tuple val(sample_id), path("${sample_id}/${sample_id}_recal.bam"), path("${sample_id}/${sample_id}_recal.bai"), emit: output
+    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_recal.bam"), path("${sample_id}/${sample_id}_recal.bai"), emit: output
 
     script:
     template "apply_bqsr.sh"

@@ -17,11 +17,11 @@ process NORMAL_ALIGN {
     publishDir "${projectDir}/output/normal", mode: "copy"
 
     input:
-    tuple val(sample_id), path(dir)
+    tuple val(ix), val(sample_id), path(dir)
     path genome_dir
 
     output:
-    path "${sample_id}/${sample_id}_mapped.sam", emit: mapped_sam
+    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_mapped.sam"), emit: mapped_sam
 
     script:
     template "normal_align.sh"

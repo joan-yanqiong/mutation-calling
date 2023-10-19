@@ -4,7 +4,7 @@ include { MUTECT_R1; ONCOTATOR} from "../nf-modules/rna_mutect1.nf"
 
 workflow RNA_TUMOR_PROCESSING {
     take:
-    star_index
+    index_dir
     ref_genome
     dbSNP_set
     cosmic_set
@@ -14,9 +14,9 @@ workflow RNA_TUMOR_PROCESSING {
         | splitCsv(header:true) \
         | map { row -> tuple(row.ix, row.tumor_id, file(row.tumor_fastq)) }
 
-    STAR_ALIGN(index_dir = star_index, samples_meta)
+    STAR_ALIGN(index_dir = index_dir, samples_meta)
 
-    ADD_READ_GROUPS(STAR_ALIGN.out.output) \
+    ADD_READ_GROUPS(STAR_ALIGN.out.output, sample_type = "tumor") \
     | MARK_DUPLICATES
 
     SPLIT_CIGARS(MARK_DUPLICATES.out.output, ref_genome)

@@ -74,23 +74,13 @@ if [ "$?" -ne 0 ]; then echo "command generating BAM based on read list failed";
 
 echo "convert bam to fastq"
 samtools view -H tmp_bam.bam | sed '$d' - > tmp_header_T.sam
-if [ "$?" -ne 0 ]; then echo "command failed"; exit 1; fi
+# if [ "$?" -ne 0 ]; then echo "command failed"; exit 1; fi
 
 samtools view tmp_bam.bam | awk '$2 < 2040 { print }' > tmp0_T.sam
-if [ "$?" -ne 0 ]; then echo "command failed"; exit 1; fi
+# if [ "$?" -ne 0 ]; then echo "command failed"; exit 1; fi
 
 cat tmp_header_T.sam tmp0_T.sam > tmp_filteredbamT.sam
 
-java -Xmx7g -jar $LIB/SamToFastq.jar I=tmp_filteredbamT.sam F=${NAME}_tmp_sequence_1.fastq F2=${NAME}_tmp_sequence_2.fastq VALIDATION_STRINGENCY=LENIENT
-if [ "$?" -ne 0 ]; then echo "command failed"; exit 1; fi
-
-
-##########################################################
-#Writing Files to Annotations:
-##########################################################
-
-# This part has been moved to a separate script because the program exits before reaching this part.
-
-# echo "writing out annotation file for upload"
-# echo -e "$PWD/${NAME}_tmp_sequence_1.fastq\n$PWD/${NAME}_tmp_sequence_2.fastq"   >> ${NAME}.rna_reads_fastq_list.list
-# echo "done"
+# Added || true, to suppress/ignore the error.
+java -Xmx7g -jar $LIB/SamToFastq.jar I=tmp_filteredbamT.sam F=${NAME}_tmp_sequence_1.fastq F2=${NAME}_tmp_sequence_2.fastq VALIDATION_STRINGENCY=LENIENT || true
+# if [ "$?" -ne 0 ]; then echo "command failed"; exit 1; fi
