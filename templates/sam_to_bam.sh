@@ -1,12 +1,12 @@
 #!/bin/bash
 
-echo "Loading module..."
+echo "\$(date)  Loading module..."
 module load samtools
 
-echo "Creating output directory..."
+echo "\$(date)  Creating output directory..."
 mkdir -p ${sample_id}
 
-echo "Convert SAM to BAM..."
+echo "\$(date)  Convert SAM to BAM..."
 samtools view -bS ${sam_file} > ${sample_id}/${sam_file.simpleName}.bam
 
-echo "COMPLETED!"
+echo "\$(date)  COMPLETED!"

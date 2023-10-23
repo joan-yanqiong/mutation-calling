@@ -3,24 +3,15 @@
 #SBATCH --mail-type=END,FAIL
 #SBATCH --mail-user=joan.kant@uhn.ca
 #SBATCH --partition=long
-##BATCH --partition=all
 #SBATCH --ntasks=1
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=1G
 #SBATCH --time=21-00:00:00
-##SBATCH --time=00:10:00
 #SBATCH --output=slurm_out/%x_%j.out
 #SBATCH --error=slurm_out/%x_%j.out
 
 module load java
-# module load apptainer
-
-# Local
-# base_dir="/Users/joankant/Desktop/gaitigroup/Users/Joan"
-# nf_exec="/Users/joankant/Library/CloudStorage/OneDrive-UHN/nextflow"
-# work_dir="${base_dir}/nf_work"
-# nf_profile="standard"
 
 # H4H
 base_dir="/cluster/projects/gaitigroup/Users/Joan/"
@@ -32,7 +23,6 @@ echo "$(date)   Create work directory for nextflow if not existing..."
 mkdir -p "${work_dir}"
 
 echo "$(date)   Setup paths..."
-
 project_dir="${base_dir}/h4h-mutation-calling"
 sample_sheet="${project_dir}/misc/sample_sheet_test.csv"
 
@@ -40,19 +30,19 @@ sample_sheet="${project_dir}/misc/sample_sheet_test.csv"
 ref_genome="${project_dir}/data/reference_genome/Homo_sapiens_assembly19.fasta"
 gtf_path="${project_dir}/data/References/Homo_sapiens_assembly19.gtf"
 
+# Databases
 dbcosmic="${project_dir}/data/References/b37_cosmic_v54_120711.vcf"
-
 dbSNP="${project_dir}/data/References_v2/Homo_sapiens_assembly19.dbsnp138.vcf"
 indel_db1="${project_dir}/data/References_v2/1000G_omni2.5.b37.vcf.gz"
 indel_db2="${project_dir}/data/References_v2/1000G_phase1.snps.high_confidence.b37.vcf.gz"
 
+# Required tools
 jar_files="${project_dir}/data/jar_files"
 
+# Indexing with star, hisat and bwa
 star_index_dir="${project_dir}/data/indices/STAR_Homo_sapiens_assembly19"
 hisat_index_dir="/cluster/projects/gaitigroup/Users/Joan/utilities/skeleton/nf_pipeline/data/indices/HISAT_Homo_sapiens_assembly19"
 bwa_index_dir="${project_dir}/data/indices/BWA_Homo_sapiens_assembly19"
-
-bwa_index_dir="/cluster/projects/gaitigroup/Users/Joan/utilities/skeleton/nf_pipeline/data/indices/BWA_Homo_sapiens_assembly19"
 
 # Create main output directories
 echo "$(date)   Create output directories..."
@@ -79,6 +69,4 @@ ${nf_exec} run ${project_dir} -with-report -with-trace \
     --hisat_index_dir ${hisat_index_dir} \
     --bwa_index_dir ${bwa_index_dir}
 
-# /cluster/projects/gaitigroup/Users/Jahin/Results/Practice/STAR/SRR5088818/snp_mutations.intervals /cluster/projects/gaitigroup/Users/Joan/h4h-mutation-calling/tmp/snp_mutations.intervals
-
-# /cluster/projects/gaitigroup/Users/Jahin/Results/Practice/STAR/SRR5088818/snp_mutations.intervals.bed /cluster/projects/gaitigroup/Users/Joan/h4h-mutation-calling/tmp/snp_mutations.intervals.bed
+echo "$(date)   COMPLETED!"

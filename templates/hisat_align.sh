@@ -22,16 +22,16 @@ mkdir -p \${output_folder}
 echo "\$(date)\tAligning reads..."
 # Parameters from Supp Table 12
 hisat2 -p "${task.cpus}" -k 5 \
- --min-intronlen 20 \
- --max-intronlen 500000 \
- -X 800 \
- -I 0 \
- -x "${index_dir}/${index_dir}" \
- -1 "${fastq1}" \
- -2 "${fastq2}" \
- -S "\${output_folder}/\${output_file_prefix}_aligned_hisat2.sam" \
- --rg-id=1 \
- --rg "SM:\${output_file_prefix}\\tPU:ILLUMINA_\${output_file_prefix}_lib1" \
- --rg "LB:lib_1" \
- --rg "PL:ILLUMINA"
+    --min-intronlen 20 \
+    --max-intronlen 500000 \
+    -X 800 \
+    -I 0 \
+    -x "${index_dir}/${index_dir}" \
+    -1 "${fastq1}" \
+    -2 "${fastq2}" \
+    -S "\${output_folder}/\${output_file_prefix}_aligned_hisat2.sam" \
+    --rg-id=1 \
+    --rg "SM:\${output_file_prefix}\\tPU:ILLUMINA_\${output_file_prefix}_lib1" \
+    --rg "LB:lib_1" \
+    --rg "PL:ILLUMINA"
 echo "\$(date)\tCompleted"

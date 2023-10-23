@@ -1,8 +1,13 @@
+echo "\$(date)  Loading mutect module..."
 module load mutect/1.1.5
 
+echo "\$(date)  Creating directory for output..."
 mkdir -p ${sample_id}
+
+echo "\$(date) Enter created folder..."
 cd ${sample_id}
 
+echo "\$(date)  Run mutect..."
 java -jar \$mutect_dir/muTect.jar \
     -T MuTect \
     -R "../${ref_path}" \
@@ -15,3 +20,5 @@ java -jar \$mutect_dir/muTect.jar \
     -U ALLOW_N_CIGAR_READS \
     --force_output \
     -L "../${snp_mut_intervals}"
+
+echo "\$(date)  COMPLETED!"

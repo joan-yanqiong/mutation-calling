@@ -1,12 +1,12 @@
 #!/bin/bash
-echo "Loading STAR module..."
+echo "\$(date)   Loading STAR module..."
 module load STAR
 
 # Change name to prevent overwriting w/ nextflow
+echo "\$(date)  Changing name of fastq directory..."
 mv $fastq_dir ${fastq_dir}_fastq
 
-echo Sample/Run ID: ${sample_id}
-
+echo "\$(date)  Setup input variables..."
 fq1="${fastq_dir}_fastq/*_1.fastq"
 fq2="${fastq_dir}_fastq/*_2.fastq"
 
@@ -15,15 +15,15 @@ echo \${fq2}
 
 if [ -d ${sample_id} ];
 then
-    echo "Output directory already present. Deleting..."
+    echo "\$(date)  Output directory already present. Deleting..."
     rm -r ${sample_id}
-    echo "Existing output directory deleted."
+    echo "\$(date)  Existing output directory deleted."
 fi
 
-echo "Making directory for output..."
+echo "Creating directory for output..."
 mkdir -p "${sample_id}/mapped"
 
-echo "Running STAR on reads..."
+echo "\$(date)  Running STAR on reads..."
 # Parameters from Supp Table 12
 STAR --genomeDir ${index_dir} \
 --runThreadN ${task.cpus} \
@@ -41,3 +41,5 @@ STAR --genomeDir ${index_dir} \
 --outFilterScoreMinOverLread 0.33 \
 --outFilterMatchNminOverLread 0.33 \
 --limitSjdbInsertNsj 1200000
+
+echo "\$(date)  COMPLETED!"

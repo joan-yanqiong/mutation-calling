@@ -153,7 +153,7 @@ process SORT_BAM_COORD_HIS_NORMAL{
 
     Ref: https://gatk.broadinstitute.org/hc/en-us/articles/4418062801691-SortSam-Picard-
     */
-    publishDir "${projectDir}/output/tumor", mode: "copy"
+    publishDir "${projectDir}/output/normal", mode: "copy"
 
     input:
     tuple val(ix), val(sample_id), path(read_groups_sam)
@@ -215,26 +215,18 @@ process INDEX_BAM_HIS_NORMAL {
     publishDir "${projectDir}/output/normal", mode: "copy"
 
     input:
-   tuple val(ix), val(sample_id), path(bam_file)
+    tuple val(ix), val(sample_id), path(bam_file)
 
     output:
     tuple val(ix), val(sample_id), path(bam_file), path("${sample_id}/${bam_file}.bai"), emit: output
 
     script:
-    """
-    #!/bin/bash
-    mkdir -p ${sample_id}
-    module load samtools
-
-    samtools index -b ${bam_file} "${sample_id}/${bam_file}.bai"
-
-
-    """
+    template "index_bam.sh"
 }
 
 
 process INDEX_BAM_HIS_TUMOR {
-     label "very_short_process"
+    label "very_short_process"
     /*
     Summary: Indexes a BAM file using samtools
 
@@ -251,21 +243,13 @@ process INDEX_BAM_HIS_TUMOR {
     publishDir "${projectDir}/output/tumor", mode: "copy"
 
     input:
-   tuple val(ix), val(sample_id), path(bam_file)
+    tuple val(ix), val(sample_id), path(bam_file)
 
     output:
     tuple val(ix), val(sample_id), path(bam_file), path("${sample_id}/${bam_file}.bai"), emit: output
 
     script:
-    """
-    #!/bin/bash
-    mkdir -p ${sample_id}
-    module load samtools
-
-    samtools index -b ${bam_file} "${sample_id}/${bam_file}.bai"
-
-
-    """
+    template "index_bam.sh"
 }
 process MUTECT_R2 {
     publishDir "${projectDir}/output/tumor", mode: "copy"
@@ -294,7 +278,7 @@ process MUTECT_R2 {
     tuple path(ref_path), path(ref_path_dict), path(ref_path_fai)
     tuple path(dbSNP_vcf), path(dbSNP_vcf_idx)
     tuple path(cosmic_vcf), path(cosmic_vcf_idx)
-    tuple val(ix), val(sample_id), path(tumor_hisat_bam), path(tumor_hisat_bam_bai), path(normal_tumor_hisat_bam), path(normal_tumor_hisat_bam_bai), path(snp_mut_intervals), path(snp_mut_intervals_bed)
+    tuple val(ix), val(sample_id), val(_normal_id), val(_pair_id), path(tumor_hisat_bam), path(tumor_hisat_bam_bai), path(normal_tumor_hisat_bam), path(normal_tumor_hisat_bam_bai), path(snp_mut_intervals), path(snp_mut_intervals_bed)
 
     output:
     path "${sample_id}/${sample_id}_second_call_stats.*"

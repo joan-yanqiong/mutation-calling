@@ -1,10 +1,11 @@
 #!/bin/bash
-echo "Loading GATK module..."
+echo "\$(date)  Loading GATK module..."
 module load gatk/3.8
 
-echo "Creating directory for output..."
+echo "\$(date)  Creating directory for output..."
 mkdir -p ${sample_id}
 
+echo "\$(date)  Realigning around indels..."
 java -jar \$gatk_dir/GenomeAnalysisTK.jar \
     -T IndelRealigner \
     -R ${ref_path} \
@@ -14,4 +15,4 @@ java -jar \$gatk_dir/GenomeAnalysisTK.jar \
     -targetIntervals ${realigner_intervals} \
     -o ${sample_id}/${sample_id}_realigned.bam
 
-echo "COMPLETED!"
+echo "\$(date)  COMPLETED!"

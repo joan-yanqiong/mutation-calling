@@ -10,3 +10,4 @@ output/
 logs/
 misc/
 tmp/
+*.pdf

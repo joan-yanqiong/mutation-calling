@@ -1,13 +1,13 @@
 #!/bin/bash
 
-echo "Load mutect..."
+echo "\$(date) Load mutect..."
 module load mutect/1.1.5
 
-echo "Creating directory for output..."
+echo "\$(date) Creating directory for output..."
 mkdir -p ${sample_id}
 cd ${sample_id}
 
-echo "Run mutect..."
+echo "\$(date)  Run mutect..."
 java -jar \$mutect_dir/muTect.jar \
     -T MuTect \
     -R "../${ref_path}" \
@@ -18,4 +18,4 @@ java -jar \$mutect_dir/muTect.jar \
     -vcf "${sample_id}_mutect.vcf" \
     -U ALLOW_N_CIGAR_READS
 
-echo "COMPLETED!"
+echo "\$(date) COMPLETED!"

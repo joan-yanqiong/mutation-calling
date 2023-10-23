@@ -27,16 +27,16 @@ workflow RNA_MUTECT {
 
   // pairs_info.view()
 
-  println """
-  pairs-info:${pairs_info}
-  dna_normal_processed:${dna_normal_processed}
-  rna_tumor_processed:${rna_tumor_processed}
-  mutect_r1:${mutect_round1}
-  """
-  dna_normal_processed.view()
-  rna_tumor_processed.view()
-  mutect_round1.view()
-  pairs_info.view()
+  // println """
+  // pairs-info:${pairs_info}
+  // dna_normal_processed:${dna_normal_processed}
+  // rna_tumor_processed:${rna_tumor_processed}
+  // mutect_r1:${mutect_round1}
+  // """
+  // dna_normal_processed.view()
+  // rna_tumor_processed.view()
+  // mutect_round1.view()
+  // pairs_info.view()
 
   realign_input_pair = pairs_info.join(mutect_round1, by: [0, 1]).join(dna_normal_processed, by: 0).map(it -> it.unique())
 
@@ -74,10 +74,18 @@ workflow RNA_MUTECT {
 
   SORT_BAM_COORD_HIS_TUMOR(HISAT_ALIGN_TUMOR_BAM.out, "coordinate", "aligned_hisat2_sortedbycoord") | INDEX_BAM_HIS_TUMOR
 
-  mutect_r2_input = HISAT_ALIGN_TUMOR_BAM.out.join(
-    HISAT_ALIGN_PAIR_BAM.out,
-    by: 0
-  ).map(it -> it.unique()).join(TUMOR_REALIGN_PREPROCESS.out.snp_mut_intervals, by: 0).map(it -> it.unique())
+  // mutect_r2_input = HISAT_ALIGN_TUMOR_BAM.out.join(
+  //   HISAT_ALIGN_PAIR_BAM.out,
+  //   by: 0
+  //   ).map(it ->
+  //   it.unique()).join(TUMOR_REALIGN_PREPROCESS.out.snp_mut_intervals, by:
+  //   0).map(it -> it.unique())
+
+
+
+
+  mutect_r2_input = pairs_info.join(INDEX_BAM_HIS_TUMOR.out.output, by: [0, 1]).join(INDEX_BAM_HIS_NORMAL.out.output, by: 0).map(it -> it.unique()).join(TUMOR_REALIGN_PREPROCESS.out.snp_mut_intervals, by: [0, 1])
+
 
 //   mutect_r2_input = Channel.of(tuple(
 //     1,
@@ -90,7 +98,7 @@ workflow RNA_MUTECT {
 //     file("/cluster/projects/gaitigroup/Users/Joan/h4h-mutation-calling/output/tumor/SRR5088818/snp_mutations.intervals.bed")
 //   ))
 
-  // // ---- MUTECT ROUND2 ---- //
+  // ---- MUTECT ROUND2 ---- //
   MUTECT_R2(
     ref_genome,
     dbSNP_set,

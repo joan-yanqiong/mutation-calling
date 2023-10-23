@@ -1,16 +1,16 @@
 #!/bin/bash
 
-echo "Loading GATK module..."
+echo "\$(date)  Loading GATK module..."
 module load gatk
 
-echo "Creating directory for output..."
+echo "\$(date)  Creating directory for output..."
 mkdir -p "${sample_id}"
 
-echo "Generate recalibration table..."
+echo "\$(date)  Generate recalibration table..."
 gatk BaseRecalibrator \
     -R "${ref_path}" \
     -I "${bam_file}" \
     --known-sites "${dbSNP_vcf}" \
     -O "${sample_id}/${sample_id}_recal_data.table"
 
-echo "COMPLETED!"
+echo "\$(date)  COMPLETED!"
