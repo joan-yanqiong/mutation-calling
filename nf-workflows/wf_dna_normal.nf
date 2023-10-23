@@ -13,7 +13,7 @@ workflow DNA_NORMAL_PROCESSING{
 
    normal_samples_meta = Channel.fromPath(params.sample_sheet) \
    | splitCsv(header:true) \
-   | map { row -> tuple(row.idx, row.normal_id, file(row.normal_fastq)) }
+   | map { row -> tuple(row.ix, row.normal_id, file(row.normal_fastq)) }
 
    BWA_ALIGN(normal_samples_meta, index_dir)
 

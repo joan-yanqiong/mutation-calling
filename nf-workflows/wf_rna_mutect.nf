@@ -38,7 +38,7 @@ workflow RNA_MUTECT {
   mutect_round1.view()
   pairs_info.view()
 
-  realign_input_pair = pairs_info.join(mutect_round1, by: [0, 1]).join(dna_normal_processed, by: [0]).map(it -> it.unique())
+  realign_input_pair = pairs_info.join(mutect_round1, by: [0, 1]).join(dna_normal_processed, by: 0).map(it -> it.unique())
 
   realign_input_pair.view()
   // realign_input_pair2 = pairs_info.join(, by: 0)
@@ -70,9 +70,9 @@ workflow RNA_MUTECT {
   HISAT_ALIGN_TUMOR_BAM(TUMOR_HISAT_ALIGN.out)
   HISAT_ALIGN_PAIR_BAM(PAIR_HISAT_ALIGN.out)
 
-  SORT_BAM_COORD_HIS_NORMAL(HISAT_ALIGN_PAIR_BAM.out, "coordinate", "sortedbycoord") | INDEX_BAM_HIS_NORMAL
+  SORT_BAM_COORD_HIS_NORMAL(HISAT_ALIGN_PAIR_BAM.out, "coordinate", "aligned_hisat2_sortedbycoord") | INDEX_BAM_HIS_NORMAL
 
-  SORT_BAM_COORD_HIS_TUMOR(HISAT_ALIGN_TUMOR_BAM.out, "coordinate", "sortedbycoord") | INDEX_BAM_HIS_TUMOR
+  SORT_BAM_COORD_HIS_TUMOR(HISAT_ALIGN_TUMOR_BAM.out, "coordinate", "aligned_hisat2_sortedbycoord") | INDEX_BAM_HIS_TUMOR
 
   mutect_r2_input = HISAT_ALIGN_TUMOR_BAM.out.join(
     HISAT_ALIGN_PAIR_BAM.out,

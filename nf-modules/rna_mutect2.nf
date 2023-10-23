@@ -161,7 +161,7 @@ process SORT_BAM_COORD_HIS_NORMAL{
     val suffix
 
     output:
-    tuple val(ix), val(sample_id), path("${sample_id}/${read_groups_sam.simpleName}_${suffix}.bam"), emit: output
+    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_${suffix}.bam"), emit: output
 
     script:
     template "sort_bam.sh"
@@ -191,7 +191,7 @@ process SORT_BAM_COORD_HIS_TUMOR{
     val suffix
 
     output:
-    tuple val(ix), val(sample_id), path("${sample_id}/${read_groups_sam.simpleName}_${suffix}.bam"), emit: output
+    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_${suffix}.bam"), emit: output
 
     script:
     template "sort_bam.sh"
