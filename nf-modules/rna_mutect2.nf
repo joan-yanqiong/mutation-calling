@@ -25,6 +25,7 @@ process TUMOR_REALIGN_PREPROCESS {
     path jar_files
     tuple val(ix), val(sample_id), val(normal_id), val(pair_id), path(maf), path(maf_idx), path(recal_bam), path(recal_bai)
     tuple path(ref_path), path(ref_path_dict), path(ref_path_fai)
+    val sample_type
 
     output:
     tuple val(ix), val(sample_id), path("${sample_id}/snp_mutations.intervals"),
@@ -34,7 +35,7 @@ process TUMOR_REALIGN_PREPROCESS {
     path "${sample_id}/tmp_header_T.sam"
     path "${sample_id}/tmp0_T.sam"
     path "${sample_id}/tmp_filteredbamT.sam"
-    tuple val(sample_id), val(normal_id), val(pair_id), path("${sample_id}/${sample_id}_tmp_sequence_1.fastq"), path("${sample_id}/${sample_id}_tmp_sequence_2.fastq"), val("tumor"), emit: output
+    tuple val(ix), val(sample_id), val(normal_id), val(pair_id), path("${sample_id}/${sample_id}_tmp_sequence_1.fastq"), path("${sample_id}/${sample_id}_tmp_sequence_2.fastq"), val(sample_type), emit: output
 
     shell:
     template "HiSat_realign_preprocess2.sh"
@@ -59,78 +60,24 @@ process NORMAL_REALIGN_PREPROCESS {
 
     input:
     path jar_files
-    tuple val(ix), val(tumor_id), val(normal_id), val(pair_id), path(maf), path(maf_idx), path(recal_bam), path(recal_bai)
+    tuple val(ix), val(tumor_id), val(sample_id), val(pair_id), path(maf), path(maf_idx), path(recal_bam), path(recal_bai)
     tuple path(ref_path), path(ref_path_dict), path(ref_path_fai)
+    val sample_type
 
     output:
-    path "${normal_id}/snp_mutations.intervals"
-    path "${normal_id}/snp_mutations.intervals.bed"
-    path "${normal_id}/IDs_all.txt"
-    path "${normal_id}/tmp_bam.bam"
-    path "${normal_id}/tmp_header_T.sam"
-    path "${normal_id}/tmp0_T.sam"
-    path "${normal_id}/tmp_filteredbamT.sam"
-    tuple val(ix), val(tumor_id), val(normal_id),  val(pair_id),
-    path("${normal_id}/${pair_id}_tmp_sequence_1.fastq"),
-    path("${normal_id}/${pair_id}_tmp_sequence_2.fastq"), val("normal"), emit: output
+    path "${sample_id}/snp_mutations.intervals"
+    path "${sample_id}/snp_mutations.intervals.bed"
+    path "${sample_id}/IDs_all.txt"
+    path "${sample_id}/tmp_bam.bam"
+    path "${sample_id}/tmp_header_T.sam"
+    path "${sample_id}/tmp0_T.sam"
+    path "${sample_id}/tmp_filteredbamT.sam"
+    tuple val(ix), val(tumor_id), val(sample_id),  val(pair_id),
+    path("${sample_id}/${pair_id}_tmp_sequence_1.fastq"),
+    path("${sample_id}/${pair_id}_tmp_sequence_2.fastq"), val(sample_type), emit: output
 
     shell:
     template "HiSat_realign_preprocess2.sh"
-}
-
-process TUMOR_REALIGN_ANNOTATE {
-    publishDir "${projectDir}/output/tumor", mode: "copy"
-
-    label "realign_annotate"
-    /*
-    Input:
-    sample_id: tumor_id
-    */
-    input:
-    tuple val(sample_id), path(fastq1), path(fastq2)
-
-    output:
-    tuple val(sample_id), path(fastq1), path(fastq2), emit:output
-    path "${sample_id}.rna_reads_fastq_list.list"
-
-    shell:
-    """
-    #!/bin/bash
-
-    mkdir -p !{sample_id}
-    cd !{sample_id}
-
-    echo "Writing out annotation file for upload"
-    echo -e "!{fastq1}\n!{fastq2}"   >> !{sample_id}.rna_reads_fastq_list.list
-    echo "COMPLETED!"
-    """
-}
-
-process NORMAL_REALIGN_ANNOTATE {
-    label "realign_annotate"
-
-    publishDir "${projectDir}/output/normal", mode: "copy"
-
-    input:
-    tuple val(normal_id), val(tumor_id), val(pair_id), path(fastq1), path(fastq2)
-
-    output:
-    tuple val(normal_id), val(tumor_id), val(pair_id), path(fastq1), path(fastq2), emit: output
-    path "${pair_id}.rna_reads_fastq_list.list"
-
-    shell:
-    """
-    #!/bin/bash
-
-    mkdir -p !{normal_id}
-    cd !{normal_id}
-
-    echo "writing out annotation file for upload"
-    echo -e "!{fastq1}\n!{fastq2}"   >> !{pair_id}.rna_reads_fastq_list.list
-    echo "COMPLETED!"
-
-    """
-
 }
 
 process TUMOR_HISAT_ALIGN {
@@ -155,7 +102,7 @@ process TUMOR_HISAT_ALIGN {
     tuple val(ix), val(tumor_id), val(normal_id), val(pair_id), path(fastq1), path(fastq2), val(sample_type)
 
     output:
-    tuple val(ix), val(tumor_id), path("${tumor_id}/${tumor_id}.aligned.sorted_by_coord.hisat2.sam")
+    tuple val(ix), val(tumor_id), path("${tumor_id}/${tumor_id}_aligned_hisat2.sam")
 
     script:
     template "hisat_align.sh"
@@ -183,12 +130,143 @@ process PAIR_HISAT_ALIGN {
     tuple val(ix), val(tumor_id), val(normal_id), val(pair_id), path(fastq1), path(fastq2), val(sample_type)
 
     output:
-    tuple val(ix), path(tumor_id), path("${normal_id}/${pair_id}.aligned.sorted_by_coord.hisat2.sam")
+    tuple val(ix), val(normal_id), path("${normal_id}/${pair_id}_aligned_hisat2.sam")
 
     script:
     template "hisat_align.sh"
 }
 
+
+process SORT_BAM_COORD_HIS_NORMAL{
+    label "very_short_process"
+
+    /*
+    Summary: Sorts the input SAM or BAM file by queryname
+
+    Input:
+    sample_id: Sample ID
+    read_groups_bam: BAM file containing read groups
+
+    Output:
+    sample_id: Sample ID
+    sorted_bam: Sorted BAM file
+
+    Ref: https://gatk.broadinstitute.org/hc/en-us/articles/4418062801691-SortSam-Picard-
+    */
+    publishDir "${projectDir}/output/tumor", mode: "copy"
+
+    input:
+    tuple val(ix), val(sample_id), path(read_groups_sam)
+    val sort_order
+    val suffix
+
+    output:
+    tuple val(ix), val(sample_id), path("${sample_id}/${read_groups_sam.simpleName}_${suffix}.bam"), emit: output
+
+    script:
+    template "sort_bam.sh"
+}
+
+process SORT_BAM_COORD_HIS_TUMOR{
+    label "very_short_process"
+
+    /*
+    Summary: Sorts the input SAM or BAM file by queryname
+
+    Input:
+    sample_id: Sample ID
+    read_groups_bam: BAM file containing read groups
+
+    Output:
+    sample_id: Sample ID
+    sorted_bam: Sorted BAM file
+
+    Ref: https://gatk.broadinstitute.org/hc/en-us/articles/4418062801691-SortSam-Picard-
+    */
+    publishDir "${projectDir}/output/tumor", mode: "copy"
+
+    input:
+    tuple val(ix), val(sample_id), path(read_groups_sam)
+    val sort_order
+    val suffix
+
+    output:
+    tuple val(ix), val(sample_id), path("${sample_id}/${read_groups_sam.simpleName}_${suffix}.bam"), emit: output
+
+    script:
+    template "sort_bam.sh"
+}
+
+process INDEX_BAM_HIS_NORMAL {
+    label "very_short_process"
+    /*
+    Summary: Indexes a BAM file using samtools
+
+    Input:
+    sample_id: Sample ID
+    sorted_bam: Sorted BAM file
+
+    Output:
+    sample_id: Sample ID
+    sorted_bam: Sorted BAM file
+
+    Ref: http://www.htslib.org/doc/samtools-index.html
+    */
+    publishDir "${projectDir}/output/normal", mode: "copy"
+
+    input:
+   tuple val(ix), val(sample_id), path(bam_file)
+
+    output:
+    tuple val(ix), val(sample_id), path(bam_file), path("${sample_id}/${bam_file}.bai"), emit: output
+
+    script:
+    """
+    #!/bin/bash
+    mkdir -p ${sample_id}
+    module load samtools
+
+    samtools index -b ${bam_file} "${sample_id}/${bam_file}.bai"
+
+
+    """
+}
+
+
+process INDEX_BAM_HIS_TUMOR {
+     label "very_short_process"
+    /*
+    Summary: Indexes a BAM file using samtools
+
+    Input:
+    sample_id: Sample ID
+    sorted_bam: Sorted BAM file
+
+    Output:
+    sample_id: Sample ID
+    sorted_bam: Sorted BAM file
+
+    Ref: http://www.htslib.org/doc/samtools-index.html
+    */
+    publishDir "${projectDir}/output/tumor", mode: "copy"
+
+    input:
+   tuple val(ix), val(sample_id), path(bam_file)
+
+    output:
+    tuple val(ix), val(sample_id), path(bam_file), path("${sample_id}/${bam_file}.bai"), emit: output
+
+    script:
+    """
+    #!/bin/bash
+    mkdir -p ${sample_id}
+    module load samtools
+
+    samtools index -b ${bam_file} "${sample_id}/${bam_file}.bai"
+
+
+    """
+}
 process MUTECT_R2 {
     publishDir "${projectDir}/output/tumor", mode: "copy"
 
@@ -216,7 +294,7 @@ process MUTECT_R2 {
     tuple path(ref_path), path(ref_path_dict), path(ref_path_fai)
     tuple path(dbSNP_vcf), path(dbSNP_vcf_idx)
     tuple path(cosmic_vcf), path(cosmic_vcf_idx)
-    tuple val(ix), val(sample_id), path(tumor_hisat_bam), path(normal_tumor_hisat_bam), path(snp_mut_intervals), path(snp_mut_intervals_bed)
+    tuple val(ix), val(sample_id), path(tumor_hisat_bam), path(tumor_hisat_bam_bai), path(normal_tumor_hisat_bam), path(normal_tumor_hisat_bam_bai), path(snp_mut_intervals), path(snp_mut_intervals_bed)
 
     output:
     path "${sample_id}/${sample_id}_second_call_stats.*"

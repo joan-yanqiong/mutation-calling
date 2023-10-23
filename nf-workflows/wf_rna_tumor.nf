@@ -16,7 +16,7 @@ workflow RNA_TUMOR_PROCESSING {
 
     STAR_ALIGN(index_dir = index_dir, samples_meta)
 
-    ADD_READ_GROUPS(STAR_ALIGN.out.output, sample_type = "tumor") \
+    ADD_READ_GROUPS(STAR_ALIGN.out.output, sample_type = "tumor", suffix = "Aligned.sortedByCoord.out_read_groups") \
     | MARK_DUPLICATES
 
     SPLIT_CIGARS(MARK_DUPLICATES.out.output, ref_genome)

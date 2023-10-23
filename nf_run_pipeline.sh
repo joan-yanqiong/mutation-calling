@@ -3,7 +3,7 @@
 #SBATCH --mail-type=END,FAIL
 #SBATCH --mail-user=joan.kant@uhn.ca
 #SBATCH --partition=long
-##SBATCH --partition=all
+##BATCH --partition=all
 #SBATCH --ntasks=1
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
@@ -49,8 +49,10 @@ indel_db2="${project_dir}/data/References_v2/1000G_phase1.snps.high_confidence.b
 jar_files="${project_dir}/data/jar_files"
 
 star_index_dir="${project_dir}/data/indices/STAR_Homo_sapiens_assembly19"
-hisat_index_dir="${project_dir}/data/indices/HISAT_Homo_sapiens_assembly19"
+hisat_index_dir="/cluster/projects/gaitigroup/Users/Joan/utilities/skeleton/nf_pipeline/data/indices/HISAT_Homo_sapiens_assembly19"
 bwa_index_dir="${project_dir}/data/indices/BWA_Homo_sapiens_assembly19"
+
+bwa_index_dir="/cluster/projects/gaitigroup/Users/Joan/utilities/skeleton/nf_pipeline/data/indices/BWA_Homo_sapiens_assembly19"
 
 # Create main output directories
 echo "$(date)   Create output directories..."
@@ -61,7 +63,7 @@ mkdir -p "${project_dir}/output/tumor"
 
 # Start the pipeline
 echo "$(date)   Start the pipeline..."
-${nf_exec} run ${project_dir} \
+${nf_exec} run ${project_dir} -with-report -with-trace \
     -resume "c19daa3f-d1be-4047-ab45-f90f595f53f5" -profile ${nf_profile} \
     -w $work_dir \
     --sample_sheet ${sample_sheet} \

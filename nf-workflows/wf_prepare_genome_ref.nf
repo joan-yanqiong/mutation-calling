@@ -12,7 +12,7 @@ workflow SET_REF_GENOME {
 
     if (fasta_exists && fai_exists && dict_exists) {
         println "FASTA, FAI, and DICT files already exist"
-        ref_genome = tuple(params.ref_genome, file("${ref_genome_basepath}.fasta.fai"), file("${ref_genome_basepath}.dict"))
+        ref_genome = tuple(params.ref_genome,  file("${ref_genome_basepath}.dict"), file("${ref_genome_basepath}.fasta.fai"))
     } else {
         CREATE_FASTA_DICT(params.ref_genome)
         CREATE_FASTA_INDEX(params.ref_genome)

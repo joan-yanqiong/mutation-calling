@@ -1,13 +1,14 @@
 #!/bin/bash
-echo "\$(date)\tLoading hisat2 module..."
+echo "\$(date)  Loading hisat2 module..."
 module load hisat2/2.0.4
 
-echo "\$(date)\tMaking directory for output..."
+echo "\$(date)  Making directory for output..."
 mkdir -p ${index_dir}_${ref_path.simpleName}
 
-# Setup paths/directories
+echo "\$(date)  Enter created folder..."
 cd ${index_dir}_${ref_path.simpleName}
-echo "\$(date)\tBuild Hisat2 index..."
-hisat2-build "../${ref_path}" ${index_dir}_${ref_path.simpleName}
 
-echo "\$(date)\tCOMPLETED!"
+echo "\$(date)  Build Hisat2 index..."
+hisat2-build -p ${task.cpus} "../${ref_path}" ${index_dir}_${ref_path.simpleName}
+
+echo "\$(date)  COMPLETED!"

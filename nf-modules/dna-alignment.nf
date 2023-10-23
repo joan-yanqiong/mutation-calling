@@ -1,6 +1,4 @@
-
-
-process NORMAL_ALIGN {
+process BWA_ALIGN {
     /*
     Summary: Align normal sample to the reference genome using bwa
 
@@ -18,7 +16,7 @@ process NORMAL_ALIGN {
 
     input:
     tuple val(ix), val(sample_id), path(dir)
-    path genome_dir
+    path index_dir
 
     output:
     tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_mapped.sam"), emit: mapped_sam

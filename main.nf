@@ -47,28 +47,8 @@ workflow {
     SET_REF_GENOME()
 
     BUILD_INDICES(ref_genome = SET_REF_GENOME.out.ref_genome)
-    // BWA_INDEX(
-    //     index_dir = params.bwa_index_dir,
-    //     ref_path = SET_REF_GENOME.out.ref_genome
-    // )
-    // STAR_INDEX(
-    //     index_dir = params.star_index_dir,
-    //     ref_path = SET_REF_GENOME.out.ref_genome,
-    //     params.gtf_path
-    // )
-    // HISAT_INDEX(
-    //     index_dir = params.hisat_index_dir,
-    //     ref_path = SET_REF_GENOME.out.ref_genome
-    // )
-
 
     // ---- HANDLING TUMOR SAMPLES ---- //
-    // RNA_TUMOR_PROCESSING(
-    //     star_index = STAR_INDEX.out.indexed_dir,
-    //     ref_genome = SET_REF_GENOME.out.ref_genome,
-    //     dbSNP_set = dbSNP_set,
-    //     cosmic_set = cosmic_set
-    // )
     RNA_TUMOR_PROCESSING(
     index_dir = BUILD_INDICES.out.star_index,
     ref_genome = SET_REF_GENOME.out.ref_genome,
@@ -84,42 +64,24 @@ workflow {
     )
 
     // ---- HANDLING NORMAL SAMPLES ---- //
-    // DNA_NORMAL_PROCESSING(
-    //     index_dir = BWA_INDEX.out.indexed_dir,
-    //     indel_db1_set = indel_db1_set,
-    //     indel_db2_set = indel_db2_set,
-    //     ref_genome = SET_REF_GENOME.out.ref_genome,
-    //     dbSNP_set = dbSNP_set
-    // )
+    DNA_NORMAL_PROCESSING(
+        index_dir = BUILD_INDICES.out.bwa_index,
+        indel_db1_set = indel_db1_set,
+        indel_db2_set = indel_db2_set,
+        ref_genome = SET_REF_GENOME.out.ref_genome,
+        dbSNP_set = dbSNP_set
+    )
 
-    // DNA_NORMAL_PROCESSING(
-    //     index_dir = BUILD_INDICES.out.bwa_index,
-    //     indel_db1_set = indel_db1_set,
-    //     indel_db2_set = indel_db2_set,
-    //     ref_genome = SET_REF_GENOME.out.ref_genome,
-    //     dbSNP_set = dbSNP_set
-    // )
-
-    // ---- RNA-MUTECT ---- //
-    // RNA_MUTECT(
-    //     mutect_round1 = MUTECT_ROUND1.out,
-    //     rna_tumor_processed = RNA_TUMOR_PROCESSING.out,
-    //     dna_normal_processed = DNA_NORMAL_PROCESSING.out,
-    //     ref_genome = SET_REF_GENOME.out.ref_genome,
-    //     index_dir = HISAT_INDEX.out.indexed_dir,
-    //     dbSNP_set = dbSNP_set,
-    //     cosmic_set = cosmic_set
-    // )
-
-    //     RNA_MUTECT(
-    //     mutect_round1 = MUTECT_ROUND1.out,
-    //     rna_tumor_processed = RNA_TUMOR_PROCESSING.out,
-    //     dna_normal_processed = DNA_NORMAL_PROCESSING.out,
-    //     ref_genome = SET_REF_GENOME.out.ref_genome,
-    //     index_dir = BUILD_INDICES.out.hisat_index,
-    //     dbSNP_set = dbSNP_set,
-    //     cosmic_set = cosmic_set
-    // )
+    // // ---- RNA-MUTECT ---- //
+        RNA_MUTECT(
+        mutect_round1 = MUTECT_ROUND1.out,
+        rna_tumor_processed = RNA_TUMOR_PROCESSING.out,
+        dna_normal_processed = DNA_NORMAL_PROCESSING.out,
+        ref_genome = SET_REF_GENOME.out.ref_genome,
+        index_dir = BUILD_INDICES.out.hisat_index,
+        dbSNP_set = dbSNP_set,
+        cosmic_set = cosmic_set
+    )
 }
 
 workflow.onComplete {

@@ -1,5 +1,5 @@
-include { SORT_BAM; NORMAL_MARK_DUPLICATES; INDEL_REALIGN_TARGET; INDEL_REALIGNER; NORMAL_BQSR_TABLE; NORMAL_APPLY_BQSR; ADD_READ_GROUPS_NORMAL } from "../nf-modules/dna-preprocessing"
-include { NORMAL_ALIGN; } from "../nf-modules/dna-alignment"
+include { SORT_BAM; MARK_DUPLICATES_NORMAL; INDEL_REALIGN_TARGET; INDEL_REALIGNER; NORMAL_BQSR_TABLE; NORMAL_APPLY_BQSR; ADD_READ_GROUPS_NORMAL; SORT_BAM_COORD; INDEX_BAM } from "../nf-modules/dna-preprocessing"
+include { BWA_ALIGN; } from "../nf-modules/dna-alignment"
 include {SAM_TO_BAM} from "../nf-modules/utils.nf"
 workflow DNA_NORMAL_PROCESSING{
    take:
@@ -15,14 +15,16 @@ workflow DNA_NORMAL_PROCESSING{
    | splitCsv(header:true) \
    | map { row -> tuple(row.idx, row.normal_id, file(row.normal_fastq)) }
 
-   //  TODO: testing if FASTQ files are found/downloaded again
-   NORMAL_ALIGN(normal_samples_meta, genome_dir = index_dir)
+   BWA_ALIGN(normal_samples_meta, index_dir)
 
-   ADD_READ_GROUPS_NORMAL(NORMAL_ALIGN.out.mapped_sam, sample_type = "normal") \
-   | SORT_BAM \
-   | NORMAL_MARK_DUPLICATES
+   ADD_READ_GROUPS_NORMAL(BWA_ALIGN.out.mapped_sam, sample_type = "normal", suffix = "read_groups")
+   SORT_BAM(ADD_READ_GROUPS_NORMAL.out.output, sort_order = "queryname", suffix = "sorted") \
+   | MARK_DUPLICATES_NORMAL
 
-   INDEL_REALIGN_TARGET(NORMAL_MARK_DUPLICATES.out.output, indel_db1_set, indel_db2_set, ref_genome)
+   SORT_BAM_COORD(MARK_DUPLICATES_NORMAL.out.output, sort_order = "coordinate", suffix = "marked_dup_sorted_coord") \
+   | INDEX_BAM
+
+   INDEL_REALIGN_TARGET(INDEX_BAM.out.output, indel_db1_set, indel_db2_set, ref_genome)
 
    INDEL_REALIGNER(INDEL_REALIGN_TARGET.out.output, indel_db1_set, indel_db2_set, ref_genome)
 

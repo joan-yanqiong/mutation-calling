@@ -21,7 +21,7 @@ echo "\$(date)\tBuild genome index..."
 # --sjdbGTFfile: /path/to/GTF_file
 # --sjdbOverhang: readlength -1
 
-STAR --runThreadN 6 \
+STAR --runThreadN ${task.cpus} \
  --runMode genomeGenerate \
  --genomeDir ${index_dir}_${ref_path.simpleName} \
  --genomeFastaFiles "${ref_path}" \

@@ -26,7 +26,7 @@ mkdir -p "${sample_id}/mapped"
 echo "Running STAR on reads..."
 # Parameters from Supp Table 12
 STAR --genomeDir ${index_dir} \
---runThreadN 6 \
+--runThreadN ${task.cpus} \
 --readFilesIn \${fq1} \${fq2} \
 --outFileNamePrefix "${sample_id}/mapped/${sample_id}_" \
 --outSAMtype BAM SortedByCoordinate \

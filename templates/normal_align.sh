@@ -18,13 +18,16 @@ fi
 echo "Making directory for output..."
 mkdir -p ${sample_id}
 
-echo "Running bwa-mem on reads..."
 
+# mv $index_dir/* .
+
+echo "Running bwa-mem on reads..."
 bwa mem \
- -M \
- ${genome_dir} \
- \$fq1 \
- \$fq2 \
- > ${sample_id}/${sample_id}_mapped.sam
+    -t ${task.cpus} \
+    -M \
+    ${index_dir}/${index_dir} \
+    \$fq1 \
+    \$fq2 \
+    > ${sample_id}/${sample_id}_mapped.sam
 
 echo "COMPLETED!"

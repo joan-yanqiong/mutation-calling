@@ -69,10 +69,11 @@ process SAM_TO_BAM {
 
     input:
     tuple val(ix), val(sample_id), path(sam_file)
+    tuple path(ref_path), path(ref_path_dict), path(ref_path_fai)
 
     output:
-    tuple val(ix), val(sample_id), path("${sample_id}/${sam_file.simpleName}.bam")
+    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_mapped.bam")
 
     script:
-    template "sam_to_bam.sh"
+    template "sam_to_bam_sq.sh"
 }

@@ -7,9 +7,10 @@ process ADD_READ_GROUPS_NORMAL {
     input:
     tuple val(ix), val(sample_id), path(mapped_bam)
     val sample_type
+    val suffix
 
     output:
-    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_read_groups.bam"), emit: output
+    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_${suffix}.bam"), emit: output
 
     script:
     template "add_read_groups.sh"
@@ -32,16 +33,18 @@ process SORT_BAM {
     publishDir "${projectDir}/output/normal", mode: "copy"
 
     input:
-    tuple val(ix), val(sample_id), path(read_groups_bam)
+    tuple val(ix), val(sample_id), path(read_groups_sam)
+    val sort_order
+    val suffix
 
     output:
-    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_sorted.bam"), emit: output
+    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_${suffix}.bam"), emit: output
 
     script:
     template "sort_bam.sh"
 }
 
-process NORMAL_MARK_DUPLICATES {
+process MARK_DUPLICATES_NORMAL {
     /*
     Summary: A better duplication marking algorithm that handles all cases including clipped and gapped alignments.
 
@@ -69,6 +72,71 @@ process NORMAL_MARK_DUPLICATES {
     template "mark_duplicates.sh"
 }
 
+
+process SORT_BAM_COORD {
+    label "very_short_process"
+
+    /*
+    Summary: Sorts the input SAM or BAM file by queryname
+
+    Input:
+    sample_id: Sample ID
+    read_groups_bam: BAM file containing read groups
+
+    Output:
+    sample_id: Sample ID
+    sorted_bam: Sorted BAM file
+
+    Ref: https://gatk.broadinstitute.org/hc/en-us/articles/4418062801691-SortSam-Picard-
+    */
+    publishDir "${projectDir}/output/normal", mode: "copy"
+
+    input:
+    tuple val(ix), val(sample_id), path(read_groups_sam)
+    val sort_order
+    val suffix
+
+    output:
+    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_${suffix}.bam"), emit: output
+
+    script:
+    template "sort_bam.sh"
+}
+
+process INDEX_BAM {
+    label "very_short_process"
+    /*
+    Summary: Indexes a BAM file using samtools
+
+    Input:
+    sample_id: Sample ID
+    sorted_bam: Sorted BAM file
+
+    Output:
+    sample_id: Sample ID
+    sorted_bam: Sorted BAM file
+
+    Ref: http://www.htslib.org/doc/samtools-index.html
+    */
+    publishDir "${projectDir}/output/normal", mode: "copy"
+
+    input:
+    tuple val(ix), val(sample_id), path(sorted_bam)
+
+    output:
+    tuple val(ix), val(sample_id), path(sorted_bam), path("${sample_id}/${sample_id}_marked_dup_sorted_coord.bam.bai"), emit: output
+
+    script:
+    """
+    #!/bin/bash
+    mkdir -p ${sample_id}
+    module load samtools
+
+
+    samtools index -b ${sorted_bam} "${sample_id}/${sample_id}_marked_dup_sorted_coord.bam.bai"
+    """
+}
+
 process INDEL_REALIGN_TARGET {
     /*
     Summary:
@@ -92,13 +160,13 @@ process INDEL_REALIGN_TARGET {
     publishDir "${projectDir}/output/normal", mode: "copy"
 
     input:
-    tuple val(ix), val(sample_id), path(marked_dup_bam)
+    tuple val(ix), val(sample_id), path(marked_dup_bam), path(marked_dup_bam_bai)
     tuple path(indel_db1), path(indel_db1_idx)
     tuple path(indel_db2), path(indel_db2_idx)
     tuple path(ref_path), path(ref_path_dict), path(ref_path_fai)
 
     output:
-    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_marked_dup_sorted_coord.bam"), path("${sample_id}/${sample_id}_marked_dup_sorted_coord.bam.bai"), path("${sample_id}/${sample_id}_realigner.intervals"), emit: output
+    tuple val(ix), val(sample_id), path(marked_dup_bam), path(marked_dup_bam_bai), path("${sample_id}/${sample_id}_realigner.intervals"), emit: output
 
     script:
     template "indel_realign_target.sh"
@@ -179,6 +247,8 @@ process NORMAL_APPLY_BQSR {
 
     Ref: https://gatk.broadinstitute.org/hc/en-us/articles/360037055712-ApplyBQSR
     */
+    publishDir "${projectDir}/output/normal", mode: "copy"
+
     input:
     tuple val(ix), val(sample_id), path(bam_file), path(recal_data_table)
     tuple path(ref_path), path(ref_path_dict), path(ref_path_fai)

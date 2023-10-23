@@ -7,6 +7,7 @@ process ADD_READ_GROUPS {
     input:
     tuple val(ix), val(sample_id), path(mapped_bam)
     val(sample_type)
+    val(suffix)
 
     output:
     tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_Aligned.sortedByCoord.out_read_groups.bam"), emit: output

@@ -14,7 +14,15 @@ LIB="../!{jar_files}"
 MAF="../!{maf}"
 BAM="../!{recal_bam}"
 REFo="../!{ref_path}"
-NAME=!{sample_id}
+NAME="!{sample_id}"
+
+if [[ "!{sample_type}" == "tumor" ]]
+then
+    prefix="!{sample_id}"
+elif [[ "!{sample_type}" == "normal" ]]
+then
+    prefix="!{pair_id}"
+fi
 
 xbase=${BAM##*/}
 STUB=${xbase%.*}
@@ -82,5 +90,5 @@ samtools view tmp_bam.bam | awk '$2 < 2040 { print }' > tmp0_T.sam
 cat tmp_header_T.sam tmp0_T.sam > tmp_filteredbamT.sam
 
 # Added || true, to suppress/ignore the error.
-java -Xmx7g -jar $LIB/SamToFastq.jar I=tmp_filteredbamT.sam F=${NAME}_tmp_sequence_1.fastq F2=${NAME}_tmp_sequence_2.fastq VALIDATION_STRINGENCY=LENIENT || true
+java -Xmx7g -jar $LIB/SamToFastq.jar I=tmp_filteredbamT.sam F=${prefix}_tmp_sequence_1.fastq F2=${prefix}_tmp_sequence_2.fastq VALIDATION_STRINGENCY=LENIENT || true
 # if [ "$?" -ne 0 ]; then echo "command failed"; exit 1; fi
