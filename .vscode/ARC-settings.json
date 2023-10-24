@@ -1,0 +1,43 @@
+{
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.autopep8"
+  },
+  "[r]": {
+    "editor.defaultFormatter": "REditorSupport.r"
+  },
+  "[shellscript]": {
+    "editor.wordWrap": "off"
+  },
+  "cSpell.ignoreRegExpList": [
+    "*\\\\:\\\\:"
+  ],
+  "cSpell.patterns": [
+    "*\\:\\:",
+    "*\\:\\:\\:"
+  ],
+  "editor.defaultFormatter": "REditorSupport.r",
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": true,
+  "editor.formatOnType": false,
+  "files.exclude": {
+    "**/._*": true
+  },
+
+  // "terminal.integrated.defaultProfile.osx": "zsh",
+  "python.defaultInterpreterPath": "/Users/joankant/miniforge-pypy3/envs/cci_env/bin/python3",
+  // "python.terminal.activateEnvInCurrentTerminal": true,
+  // "python.terminal.activateEnvironment": true,
+  "r.alwaysUseActiveTerminal": true,
+  "r.bracketedPaste": true,
+  "r.rpath.mac": "/Users/joankant/miniforge-pypy3/envs/cci_env/bin/r",
+  "r.rterm.mac": "/Users/joankant/miniforge-pypy3/envs/cci_env/bin/radian",
+  "r.rterm.option": [
+    "--r-binary=/Users/joankant/miniforge-pypy3/envs/cci_env/bin/r"
+  ],
+  "r.plot.useHttpgd": true,
+  // "r.libPaths": ["/Users/joankant/Library/Caches/org.R-project.R/R/renv/library/h4h-cell-cell-interactions-e3a117fb/R-4.2/x86_64-apple-darwin13.4.0"],
+  "errorLens.enabledDiagnosticLevels": [
+    "error",
+    "warning"
+  ],
+}

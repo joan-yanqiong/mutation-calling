@@ -1,0 +1,31 @@
+{
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.autopep8"
+  },
+  "[r]": {
+    "editor.defaultFormatter": "REditorSupport.r"
+  },
+  "[shellscript]": {
+    "editor.wordWrap": "off"
+  },
+  "editor.defaultFormatter": "REditorSupport.r",
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": true,
+  "editor.formatOnType": false,
+  "files.exclude": {
+    "**/._*": true
+  },
+  "python.defaultInterpreterPath": "/Users/joankant/miniforge-pypy3/envs/cci_env/bin/python3",
+  "r.alwaysUseActiveTerminal": true,
+  "r.bracketedPaste": true,
+  "r.rpath.mac": "/Users/joankant/miniforge-pypy3/envs/cci_env/bin/r",
+  "r.rterm.mac": "/Users/joankant/miniforge-pypy3/envs/cci_env/bin/radian",
+  "r.rterm.option": [
+    "--r-binary=/Users/joankant/miniforge-pypy3/envs/cci_env/bin/r"
+  ],
+  "r.plot.useHttpgd": true,
+  "errorLens.enabledDiagnosticLevels": [
+    "error",
+    "warning"
+  ],
+}
