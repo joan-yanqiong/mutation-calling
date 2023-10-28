@@ -27,6 +27,7 @@ options(
     renv.settings.use.cache = TRUE,
     renv.consent = TRUE,
     renv.config.auto.snapshot = FALSE,
-    renv.config.pak.enabled = TRUE
+    renv.config.pak.enabled = TRUE,
+    renv.config.snapshot.type = "implicit"
 )
 source("renv/activate.R")

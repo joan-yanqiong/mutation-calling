@@ -16,7 +16,41 @@ devtools::load_all("./", export_all = FALSE)
 if (!interactive()) {
     # Define input arguments when running from bash
     parser <- setup_default_argparser(
-        description = "Prepare Samplesheet for pipeline",
+        description = "Prepare Samplesheet for pipeline", default_output = "misc"
+    )
+    parser$add_argument(
+        "--gseo",
+        type = "character",
+        required = TRUE,
+        help = "GEO metadata file"
+    )
+    parser$add_argument(
+        "--wes_sra",
+        type = "character",
+        required = TRUE,
+        help = "SRA metadata file for WES"
+    )
+    parser$add_argument(
+        "--rnaseq_sra",
+        type = "character",
+        required = TRUE,
+        help = "SRA metadata file for RNAseq"
+    )
+    parser$add_argument(
+        "--fastq_dir",
+        type = "character",
+        required = TRUE,
+        help = "Directory with fastq files"
+    )
+    parser$add_argument("--normal_samples_oi",
+        type = "character",
+        required = FALSE,
+        help = "File with normal samples of interest", default = NULL
+    )
+    parser$add_argument("--tumor_samples_oi",
+        type = "character",
+        required = FALSE,
+        help = "File with tumor samples of interest", default = NULL
     )
     args <- parser$parse_args()
 } else {
@@ -25,9 +59,11 @@ if (!interactive()) {
     args$log_level <- 5
     args$output_dir <- glue("{here::here()}/misc")
     args$gseo <- glue("{here::here()}/misc/GSE91061_series_matrix.xlsx")
-    args$fastq_dir <- "/cluster/projects/gaitigroup/Users"
+    args$fastq_dir <- "/cluster/projects/gaitigroup/Users/Joan/h4h-mutation-calling/data/Riaz"
     args$wes_sra <- glue("{here::here()}/misc/SraRunTable_WES.txt")
     args$rnaseq_sra <- glue("{here::here()}/misc/SraRunTable_RNA.txt")
+    args$normal_samples_oi <- glue("/Users/joankant/Library/CloudStorage/OneDrive-UHN/004_Projects/Lupus/pilot_normal_samples_for_download.txt")
+    args$tumor_samples_oi <- NULL
 }
 
 # Set up logging
@@ -41,6 +77,7 @@ log_info("Create output directory...")
 create_dir(args$output_dir)
 
 # Load additional libraries
+log_info("Load additional libraries...")
 pacman::p_load(readxl)
 
 log_info("Read metadata from GEO...")
@@ -50,7 +87,7 @@ rnaseq_meta <- read_excel(args$gseo, skip = 35)
 # Columns: rnasq_patient_id, GSM_id
 log_info("Create lookup table...")
 lookup_table <- data.frame(t(rnaseq_meta[1, ])) %>% rownames_to_column("patient_id")
-colnames(lookup_table) <- c("rnaseq_patient_id", "GSM_id")
+colnames(lookup_table) <- c("rna_sample_id", "GSM_id")
 lookup_table <- lookup_table[-1, ]
 head(lookup_table)
 
@@ -69,8 +106,8 @@ rnaseq_meta_sra <- read.csv(args$rnaseq_sra) %>%
 log_info("Match metadata RNAseq and lookup table...")
 rnaseq_meta_sra <- rnaseq_meta_sra %>%
     left_join(lookup_table, by = "GSM_id") %>%
-    mutate(wes_patient_id_1 = str_split(rnaseq_patient_id, simplify = TRUE, pattern = "_")[, 1], wes_patient_id_2 = str_split(rnaseq_patient_id, simplify = TRUE, pattern = "_")[, 2]) %>%
-    mutate(wes_patient_id = tolower(paste0(wes_patient_id_1, "_", wes_patient_id_2)))
+    mutate(patient_id = str_split(rna_sample_id, simplify = TRUE, pattern = "_")[, 1]) %>%
+    mutate(wes_patient_id = tolower(paste0(patient_id, "_norm")))
 
 # Combine RNAseq and WES
 log_info("Match metadata RNAseq and WES...")
@@ -81,8 +118,27 @@ sample_sheet_filtered <- sample_sheet %>% filter(normal_id != "<NA>")
 log_info("Number of available patients: {nrow(sample_sheet_filtered)}")
 
 log_info("Adding additional information...")
-sample_sheet_filtered <- sample_sheet_filtered %>% mutate(ix = row_number(), pair_id = paste0(normal_id, "_", tumor_id), tumor_fastq = paste0(args$fastq_dir, "/", tumor_id), normal_fastq = paste0(args$fastq_dir, "/", normal_id)) %>% select(ix, tumor_id, normal_id, pair_id, tumor_fastq, normal_fastq)
+sample_sheet_filtered <- sample_sheet_filtered %>%
+    mutate(ix = row_number(), pair_id = paste0(normal_id, "_", tumor_id), tumor_fastq = paste0(args$fastq_dir, "/tumor/", tumor_id), normal_fastq = paste0(args$fastq_dir, "/normal/", normal_id)) # %>%
+# select(ix, tumor_id, normal_id, pair_id, tumor_fastq, normal_fastq, )
 
 log_info("Save sample sheet...")
 write.table(sample_sheet_filtered, file = glue("{args$output_dir}/sample_sheet.csv"), sep = ",", quote = FALSE, row.names = FALSE, col.names = TRUE)
+
+if ((!is.null(args$normal_samples_oi)) || (!is.null(args$tumor_samples_oi))) {
+    log_info("Subset sample sheet...")
+    if (!is.null(args$normal_samples_oi)) {
+        log_info("Additional filtering...")
+        normal_samples_oi <- read.table(args$normal_samples_oi) %>% pull()
+        sample_sheet_filtered <- sample_sheet_filtered %>% filter(normal_id %in% normal_samples_oi)
+    }
+    if (!is.null(args$tumor_samples_oi)) {
+        log_info("Additional filtering...")
+        tumor_samples_oi <- read.table(args$tumor_samples_oi) %>% pull()
+        sample_sheet_filtered <- sample_sheet_filtered %>% filter(tumor_id %in% tumor_samples_oi)
+    }
+    log_info("Save sample sheet...")
+    write.table(sample_sheet_filtered, file = glue("{args$output_dir}/sample_sheet_subset.csv"), sep = ",", quote = FALSE, row.names = FALSE, col.names = TRUE)
+}
+
 log_info("COMPLETED!")

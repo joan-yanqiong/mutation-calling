@@ -13,9 +13,15 @@ workflow DNA_NORMAL_PROCESSING{
 
    normal_samples_meta = Channel.fromPath(params.sample_sheet) \
    | splitCsv(header:true) \
-   | map { row -> tuple(row.ix, row.normal_id, file(row.normal_fastq)) }
+   | map { row -> tuple(row.normal_id, file(row.normal_fastq)) } \
+   | unique
 
-   BWA_ALIGN(normal_samples_meta, index_dir)
+   dummy = Channel.of(1)
+   normal_samples_dummy =  dummy.combine(normal_samples_meta)
+
+   normal_samples_dummy.view()
+
+   BWA_ALIGN(normal_samples_dummy, index_dir)
 
    ADD_READ_GROUPS_NORMAL(BWA_ALIGN.out.mapped_sam, sample_type = "normal", suffix = "read_groups")
    SORT_BAM(ADD_READ_GROUPS_NORMAL.out.output, sort_order = "queryname", suffix = "sorted") \

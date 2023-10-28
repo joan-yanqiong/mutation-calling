@@ -254,7 +254,7 @@ process NORMAL_APPLY_BQSR {
     tuple path(ref_path), path(ref_path_dict), path(ref_path_fai)
 
     output:
-    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_recal.bam"), path("${sample_id}/${sample_id}_recal.bai"), emit: output
+    tuple val(sample_id), path("${sample_id}/${sample_id}_recal.bam"), path("${sample_id}/${sample_id}_recal.bai"), emit: output
 
     script:
     template "apply_bqsr.sh"

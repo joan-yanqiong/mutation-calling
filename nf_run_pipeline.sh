@@ -24,7 +24,7 @@ mkdir -p "${work_dir}"
 
 echo "$(date)   Setup paths..."
 project_dir="${base_dir}/h4h-mutation-calling"
-sample_sheet="${project_dir}/misc/sample_sheet_test.csv"
+sample_sheet="${project_dir}/misc/sample_sheet_subset.csv"
 
 # HELPER FILES (REFERENCES)
 ref_genome="${project_dir}/data/reference_genome/Homo_sapiens_assembly19.fasta"
@@ -35,6 +35,15 @@ dbcosmic="${project_dir}/data/References/b37_cosmic_v54_120711.vcf"
 dbSNP="${project_dir}/data/References_v2/Homo_sapiens_assembly19.dbsnp138.vcf"
 indel_db1="${project_dir}/data/References_v2/1000G_omni2.5.b37.vcf.gz"
 indel_db2="${project_dir}/data/References_v2/1000G_phase1.snps.high_confidence.b37.vcf.gz"
+
+human_db="${project_dir}/data/humandb/"
+
+# Databases for removing gene sites
+exac_bed="${project_dir}/data/sites_to_remove_dbs/exac_mat.bed"
+darned_bed="${project_dir}/data/sites_to_remove_dbs/Darned_mat.bed"
+radar_bed="${project_dir}/data/sites_to_remove_dbs/Radar_mat.bed"
+pseudo_genes_bed="${project_dir}/data/sites_to_remove_dbs/pseudo_genes.bed"
+pseudo_genes_bed2="${project_dir}/data/sites_to_remove_dbs/pseudo_genes_2.bed"
 
 # Required tools
 jar_files="${project_dir}/data/jar_files"
@@ -50,11 +59,13 @@ mkdir -p "${project_dir}/data/indices"
 mkdir -p "${project_dir}/logs"
 mkdir -p "${project_dir}/output/normal"
 mkdir -p "${project_dir}/output/tumor"
+mkdir -p "${project_dir}/output/mutations_prefiltered"
 
 # Start the pipeline
 echo "$(date)   Start the pipeline..."
 ${nf_exec} run ${project_dir} -with-report -with-trace \
-    -resume "c19daa3f-d1be-4047-ab45-f90f595f53f5" -profile ${nf_profile} \
+    -profile ${nf_profile} \
+    -resume "665f4183-3717-4b49-9089-a99ba7b10b0f" \
     -w $work_dir \
     --sample_sheet ${sample_sheet} \
     --ref_genome ${ref_genome} \
@@ -67,6 +78,13 @@ ${nf_exec} run ${project_dir} -with-report -with-trace \
     --outdir ${project_dir}/logs \
     --star_index_dir ${star_index_dir} \
     --hisat_index_dir ${hisat_index_dir} \
-    --bwa_index_dir ${bwa_index_dir}
+    --bwa_index_dir ${bwa_index_dir} \
+    --human_db ${human_db} \
+    --exac_bed ${exac_bed} \
+    --darned_bed ${darned_bed} \
+    --radar_bed ${radar_bed} \
+    --pseudo_genes_bed ${pseudo_genes_bed} \
+    --pseudo_genes_bed2 ${pseudo_genes_bed2} \
+    --min_alt_counts ${min_alt_counts}
 
 echo "$(date)   COMPLETED!"
