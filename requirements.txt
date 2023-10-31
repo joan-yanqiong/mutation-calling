@@ -26,3 +26,6 @@ r-log4r
 r-argparse
 r-pacman
 r-biocmanager
+r-httr
+numpy
+pandas
