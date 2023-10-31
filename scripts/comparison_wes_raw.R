@@ -53,7 +53,7 @@ pacman::p_load_gh("jmw86069/colorjam")
 mutation_files <- list.files(glue("{here::here()}/output/mutations_postprocessed"), full.names = TRUE)
 
 log_info("Load WES mutations (reference)...")
-wes_mutations <- read_excel(args$wes_mutations, skip = 2) %>% mutate(found_in_dna = 1) #%>% filter(!str_detect(`Variant Classification`, "intron"))
+wes_mutations <- read_excel(args$wes_mutations, skip = 2) %>% mutate(found_in_dna = 1) # %>% filter(!str_detect(`Variant Classification`, "intron"))
 for (i in mutation_files) {
     log_info(glue("Current file: {i}"))
     args$rna_mutations <- i

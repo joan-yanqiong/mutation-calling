@@ -1,3 +1,5 @@
 *
-!scripts/
-!R/
+!scripts/*
+!DESCRIPTION
+!NAMESPACE
+!R/*
