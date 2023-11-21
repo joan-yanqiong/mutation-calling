@@ -8,7 +8,7 @@ mkdir -p ${sample_id}
 echo "\$(date)   Converting VCF to Annovar input..."
 perl ${params.annovar}/convert2annovar.pl \
     -format vcf4 ${mutect_vcf} \
-    -outfile ${sample_id}/${sample_id}.avinput \
+    -outfile ${sample_id}/${sample_id}_${suffix}.avinput \
     -allsample \
     -withfreq
 

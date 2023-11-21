@@ -14,5 +14,20 @@ Suggests:
     devtools,
     glue,
     here,
-    httpgd
-    
+    httpgd,
+    devtools,
+    httpgd,
+    lintr,
+    styler,
+    rlang,
+    jsonlite,
+    languageserver,
+    biocInstaller,
+    glue,
+    data.table,
+    tidyverse,
+    stringr,
+    readxl,
+    VennDiagram,
+    biomaRt,
+    colorjam

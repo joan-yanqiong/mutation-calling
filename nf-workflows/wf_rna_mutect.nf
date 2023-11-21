@@ -77,9 +77,9 @@ workflow RNA_MUTECT {
     pseudo_genes_bed2 = params.pseudo_genes_bed2,
     min_alt_counts = params.min_alt_counts)
 
-  CONVERT_TO_AVINPUT(FILTERING.out.output)
+  // CONVERT_TO_AVINPUT(FILTERING.out.output, suffix = "annovar_R2")
 
   ANNOVAR(
-    CONVERT_TO_AVINPUT.out,
-    human_db = params.human_db)
+    FILTERING.out.output,
+    human_db = params.human_db, suffix = "annovar_R2")
 }

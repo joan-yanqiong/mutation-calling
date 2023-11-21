@@ -15,13 +15,13 @@
   "files.exclude": {
     "**/._*": true
   },
-  "python.defaultInterpreterPath": "/Users/joankant/miniforge-pypy3/envs/cci_env/bin/python3",
+  "python.defaultInterpreterPath": "/Users/joankant/miniforge3/envs/standard_env/bin/python3",
   "r.alwaysUseActiveTerminal": true,
   "r.bracketedPaste": true,
-  "r.rpath.mac": "/Users/joankant/miniforge-pypy3/envs/cci_env/bin/r",
-  "r.rterm.mac": "/Users/joankant/miniforge-pypy3/envs/cci_env/bin/radian",
+  "r.rpath.mac": "/Users/joankant/miniforge3/envs/standard_env/bin/r",
+  "r.rterm.mac": "/Users/joankant/miniforge3/envs/standard_env/bin/radian",
   "r.rterm.option": [
-    "--r-binary=/Users/joankant/miniforge-pypy3/envs/cci_env/bin/r"
+    "--r-binary=/Users/joankant/miniforge3/envs/standard_env/bin/r"
   ],
   "r.plot.useHttpgd": true,
   "errorLens.enabledDiagnosticLevels": [

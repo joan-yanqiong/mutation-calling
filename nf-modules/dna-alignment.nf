@@ -1,4 +1,6 @@
 process BWA_ALIGN {
+    label "time_4h"
+    label "mem12"
     /*
     Summary: Align normal sample to the reference genome using bwa
 
@@ -12,7 +14,7 @@ process BWA_ALIGN {
 
     Ref: https://bio-bwa.sourceforge.net/bwa.shtml
     */
-    publishDir "${projectDir}/output/normal", mode: "copy"
+    publishDir "${projectDir}/output/normal", mode: "symlink"
 
     input:
     tuple val(ix), val(sample_id), path(dir)
@@ -22,6 +24,5 @@ process BWA_ALIGN {
     tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_mapped.sam"), emit: mapped_sam
 
     script:
-    template "normal_align.sh"
-
+    template "bwa_align.sh"
 }

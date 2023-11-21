@@ -1,7 +1,6 @@
 radian
 python=3.10.8
 r-base=4.2.1
-r-renv
 r-devtools
 r-httpgd
 r-lintr
@@ -10,7 +9,6 @@ r-jsonlite
 r-rlang
 r-languageserver
 bioconductor-biocinstaller
-r-pak
 r-glue
 r-data.table
 r-tidyverse
@@ -29,3 +27,4 @@ r-biocmanager
 r-httr
 numpy
 pandas
+r-circlize

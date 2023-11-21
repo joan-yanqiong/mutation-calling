@@ -1,4 +1,6 @@
 process MUTECT_R1 {
+    label "time_8h"
+    label "mem40"
     /*
     Run MuTect
 
@@ -10,7 +12,7 @@ process MUTECT_R1 {
 
     */
 
-    publishDir "${projectDir}/output/tumor", mode: "copy"
+    publishDir "${projectDir}/output/tumor", mode: "symlink"
 
     input:
     tuple val(ix), val(sample_id), path(recal_bam), path(recal_bai)
@@ -27,6 +29,8 @@ process MUTECT_R1 {
 }
 
 process ONCOTATOR {
+    label "time_30m"
+    label "mem16"
     /*
     Summary: Annotate mutations obtained with Mutect
 
@@ -42,7 +46,7 @@ process ONCOTATOR {
     Ref:
     */
 
-    publishDir "${projectDir}/output/tumor", mode: "copy"
+    publishDir "${projectDir}/output/tumor", mode: "symlink"
 
     input:
     tuple val(ix),val(sample_id), path(mutect_vcf), path(mutect_vcf_index)
@@ -54,4 +58,40 @@ process ONCOTATOR {
     script:
     template "oncotator.sh"
 
+}
+
+// TODO: testing is necessary!
+process CONVERT_TO_AVINPUT_R1 {
+    label "time_30m"
+    label "mem2"
+    publishDir "${projectDir}/output/tumor", mode: "symlink"
+
+    input:
+    tuple val(ix), val(sample_id), path(mutect_vcf), path(mutect_vcf)
+    val suffix
+
+    output:
+    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_${suffix}.avinput"), path(mutect_vcf_index)
+
+    script:
+    template "convert_to_avinput.sh"
+}
+
+process ANNOVAR_R1 {
+    label "time_30m"
+    label "mem2"
+    publishDir "${projectDir}/output/tumor/", mode: "symlink"
+
+    input:
+    tuple val(ix), val(sample_id), path(av_input), path(mutect_vcf_index)
+    path human_db
+    val suffix
+
+    output:
+    path "${sample_id}/${sample_id}_${suffix}.annovar.vcf"
+    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_${suffix}.annovar.hg19_multianno.txt"),
+    path(mutect_vcf_index), emit: annovar
+
+    script:
+    template "annovar.sh"
 }

@@ -57,13 +57,13 @@ if (!interactive()) {
     # Provide arguments here for local runs
     args <- list()
     args$log_level <- 5
-    args$output_dir <- glue("{here::here()}/misc")
-    args$gseo <- glue("{here::here()}/misc/GSE91061_series_matrix.xlsx")
-    args$fastq_dir <- "/cluster/projects/gaitigroup/Users/Joan/h4h-mutation-calling/data/Riaz"
-    args$wes_sra <- glue("{here::here()}/misc/SraRunTable_WES.txt")
-    args$rnaseq_sra <- glue("{here::here()}/misc/SraRunTable_RNA.txt")
-    args$normal_samples_oi <- glue("/Users/joankant/Library/CloudStorage/OneDrive-UHN/004_Projects/Lupus/pilot_normal_samples_for_download.txt")
-    args$tumor_samples_oi <- NULL
+    args$output_dir <- glue("~/Desktop/gaitigroup/Users/Joan/000_misc/Lupus")
+    args$gseo <- glue("~/Desktop/gaitigroup/Users/Joan/000_misc/Lupus/GSE91061_series_matrix.xlsx")
+    args$fastq_dir <- "/cluster/projects/gaitigroup/Users/Joan/001_data/Lupus/Riaz"
+    args$wes_sra <- glue("~/Desktop/gaitigroup/Users/Joan/000_misc/Lupus/SraRunTable_WES.txt")
+    args$rnaseq_sra <- glue("~/Desktop/gaitigroup/Users/Joan/000_misc/Lupus/SraRunTable_RNA.txt")
+    # args$normal_samples_oi <- glue("/Users/joankant/Library/CloudStorage/OneDrive-UHN/004_Projects/Lupus/pilot_normal_samples_for_download.txt")
+    # args$tumor_samples_oi <- NULL
 }
 
 # Set up logging
@@ -93,13 +93,20 @@ head(lookup_table)
 
 # Downloaded from SRA selectors
 log_info("Read metadata from SRA selectors...")
-wes_meta_sra <- read.csv(args$wes_sra) %>%
+wes_meta_sra_normal <- read.csv(args$wes_sra) %>%
     select(Sample.Name, Run) %>%
-    rename(normal_id = Run, wes_patient_id = Sample.Name) %>%
-    mutate(wes_patient_id = tolower(wes_patient_id))
+    rename(wes_normal_id = Run, norm_id = Sample.Name) %>%
+    mutate(norm_id = tolower(norm_id)) %>%
+    filter(str_detect(norm_id, "norm"))
+wes_meta_sra_condition <- read.csv(args$wes_sra) %>%
+    select(Sample.Name, Run) %>%
+    rename(wes_condition_id = Run, pt_condition_id = Sample.Name) %>%
+    mutate(pt_condition_id = tolower(pt_condition_id)) %>%
+    filter(!str_detect(pt_condition_id, "norm"))
+
 rnaseq_meta_sra <- read.csv(args$rnaseq_sra) %>%
     select(Sample.Name, Run) %>%
-    rename(GSM_id = Sample.Name, tumor_id = Run)
+    rename(GSM_id = Sample.Name, rnaseq_condition_id = Run)
 
 
 # Combine RNAseq and lookup table
@@ -107,38 +114,27 @@ log_info("Match metadata RNAseq and lookup table...")
 rnaseq_meta_sra <- rnaseq_meta_sra %>%
     left_join(lookup_table, by = "GSM_id") %>%
     mutate(patient_id = str_split(rna_sample_id, simplify = TRUE, pattern = "_")[, 1]) %>%
-    mutate(wes_patient_id = tolower(paste0(patient_id, "_norm")))
+    mutate(norm_id = tolower(paste0(patient_id, "_norm")), condition = tolower(str_split(rna_sample_id, "_", simplify = TRUE)[, 2])) %>%
+    mutate(pt_condition_id = tolower(paste0(patient_id, "_", condition)))
 
 # Combine RNAseq and WES
 log_info("Match metadata RNAseq and WES...")
-sample_sheet <- rnaseq_meta_sra %>% left_join(wes_meta_sra, by = "wes_patient_id")
+sample_sheet <- rnaseq_meta_sra %>%
+    left_join(wes_meta_sra_normal, by = c(norm_id = "norm_id")) %>%
+    left_join(wes_meta_sra_condition, by = "pt_condition_id") %>%
+    filter(wes_normal_id != "<NA>", wes_condition_id != "<NA>", rnaseq_condition_id != "<NA>")
 
-log_info("Remove patients without WES data...")
-sample_sheet_filtered <- sample_sheet %>% filter(normal_id != "<NA>")
-log_info("Number of available patients: {nrow(sample_sheet_filtered)}")
-
-log_info("Adding additional information...")
-sample_sheet_filtered <- sample_sheet_filtered %>%
-    mutate(ix = row_number(), pair_id = paste0(normal_id, "_", tumor_id), tumor_fastq = paste0(args$fastq_dir, "/tumor/", tumor_id), normal_fastq = paste0(args$fastq_dir, "/normal/", normal_id)) # %>%
-# select(ix, tumor_id, normal_id, pair_id, tumor_fastq, normal_fastq, )
+log_info("Adding sample paths...")
+sample_sheet <- sample_sheet %>%
+    mutate(
+        ix = row_number(),
+        normal_tumor_id = paste0(wes_normal_id, "_", rnaseq_condition_id),
+        wes_pair_id = paste0(wes_normal_id, "_", wes_condition_id),
+        tumor_fastq = paste0(args$fastq_dir, "/rnaseq_condition/", rnaseq_condition_id),
+        normal_fastq = paste0(args$fastq_dir, "/wes_normal/", wes_normal_id),
+        wes_condition_fastq = paste0(args$fastq_dir, "/wes_condition/", wes_condition_id)
+    )
 
 log_info("Save sample sheet...")
-write.table(sample_sheet_filtered, file = glue("{args$output_dir}/sample_sheet.csv"), sep = ",", quote = FALSE, row.names = FALSE, col.names = TRUE)
-
-if ((!is.null(args$normal_samples_oi)) || (!is.null(args$tumor_samples_oi))) {
-    log_info("Subset sample sheet...")
-    if (!is.null(args$normal_samples_oi)) {
-        log_info("Additional filtering...")
-        normal_samples_oi <- read.table(args$normal_samples_oi) %>% pull()
-        sample_sheet_filtered <- sample_sheet_filtered %>% filter(normal_id %in% normal_samples_oi)
-    }
-    if (!is.null(args$tumor_samples_oi)) {
-        log_info("Additional filtering...")
-        tumor_samples_oi <- read.table(args$tumor_samples_oi) %>% pull()
-        sample_sheet_filtered <- sample_sheet_filtered %>% filter(tumor_id %in% tumor_samples_oi)
-    }
-    log_info("Save sample sheet...")
-    write.table(sample_sheet_filtered, file = glue("{args$output_dir}/sample_sheet_subset.csv"), sep = ",", quote = FALSE, row.names = FALSE, col.names = TRUE)
-}
-
-log_info("COMPLETED!")
+write.table(sample_sheet, file = glue("{args$output_dir}/sample_sheet.csv"), sep = ",", quote = FALSE, row.names = FALSE, col.names = TRUE)
+ log_info("COMPLETED!")

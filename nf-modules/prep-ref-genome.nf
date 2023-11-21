@@ -1,5 +1,6 @@
 process CREATE_FASTA_DICT {
-    label "very_short_process"
+    label "time_30m"
+    label "mem8"
     /*
     Generating the dictionary and index files
 
@@ -12,7 +13,7 @@ process CREATE_FASTA_DICT {
     https://gatk.broadinstitute.org/hc/en-us/articles/360037422891-CreateSequenceDictionary-Picard-
 
     */
-    publishDir "${projectDir}/data/reference_genome", mode: "copy"
+    publishDir "${projectDir}/data/reference_genome", mode: "symlink"
     input:
     path ref_genome
 
@@ -33,8 +34,9 @@ process CREATE_FASTA_DICT {
 }
 
 process CREATE_FASTA_INDEX {
-    label "very_short_process"
-    /*
+    label "time_30m"
+    label "mem8"
+        /*
     Generating the dictionary and index files
 
     Input:
@@ -43,7 +45,7 @@ process CREATE_FASTA_INDEX {
     Ref:
     https://gatk.broadinstitute.org/hc/en-us/articles/360035531652-FASTA-Reference-genome-format
     */
-    publishDir "${projectDir}/data/reference_genome", mode: "copy"
+    publishDir "${projectDir}/data/reference_genome", mode: "symlink"
 
     input:
     path ref_genome

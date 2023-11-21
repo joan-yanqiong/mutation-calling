@@ -1,8 +1,10 @@
 process ADD_READ_GROUPS {
+    label 'mem2'
+    label 'time_1h'
     /* ADD READ GROUPS
     */
 
-    publishDir "${projectDir}/output/tumor", mode: "copy"
+    publishDir "${projectDir}/output/tumor", mode: "symlink"
 
     input:
     tuple val(ix), val(sample_id), path(mapped_bam)
@@ -17,6 +19,8 @@ process ADD_READ_GROUPS {
 }
 
 process MARK_DUPLICATES {
+    label 'mem2'
+    label 'time_1h'
     /*
     Summary: A better duplication marking algorithm that handles all cases including clipped and gapped alignments.
 
@@ -30,7 +34,7 @@ process MARK_DUPLICATES {
 
     Ref: https://gatk.broadinstitute.org/hc/en-us/articles/360037052812-MarkDuplicates-Picard-
     */
-    publishDir "${projectDir}/output/tumor", mode: "copy"
+    publishDir "${projectDir}/output/tumor", mode: "symlink"
 
     input:
     tuple val(ix), val(sample_id), path(read_groups_file)
@@ -44,6 +48,8 @@ process MARK_DUPLICATES {
 }
 
 process SPLIT_CIGARS {
+    label 'mem2'
+    label 'time_1h'
     /*
     Input:
     ix, sample_id, dir: information from sample sheet
@@ -58,7 +64,7 @@ process SPLIT_CIGARS {
     Ref: https://gatk.broadinstitute.org/hc/en-us/articles/360036858811-SplitNCigarReads
 
     */
-    publishDir "${projectDir}/output/tumor", mode: "copy"
+    publishDir "${projectDir}/output/tumor", mode: "symlink"
 
     input:
     tuple val(ix), val(sample_id), path(marked_dup_bam)
@@ -74,6 +80,8 @@ process SPLIT_CIGARS {
 
 
 process BQSR_TABLE {
+    label "time_8h"
+    label "mem8"
     /*
     Summary: Generates recalibration table for Base Quality Score Recalibration (BQSR)
 
@@ -88,7 +96,7 @@ process BQSR_TABLE {
 
     Ref: https://gatk.broadinstitute.org/hc/en-us/articles/360036898312-BaseRecalibrator
     */
-    publishDir "${projectDir}/output/tumor", mode: "copy"
+    publishDir "${projectDir}/output/tumor", mode: "symlink"
 
     input:
     tuple val(ix), val(sample_id), path(bam_file), path(bai_file)
@@ -103,6 +111,8 @@ process BQSR_TABLE {
 }
 
 process APPLY_BQSR {
+    label "time_8h"
+    label "mem8"
     /*
     Summary: Apply base quality score recalibration
 
@@ -117,7 +127,7 @@ process APPLY_BQSR {
     Ref: https://gatk.broadinstitute.org/hc/en-us/articles/360037055712-ApplyBQSR
 
     */
-    publishDir "${projectDir}/output/tumor", mode: "copy"
+    publishDir "${projectDir}/output/tumor", mode: "symlink"
 
     input:
     tuple val(ix), val(sample_id), path(bam_file), path(recal_data_table)

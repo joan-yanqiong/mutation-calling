@@ -17,10 +17,10 @@ process TUMOR_REALIGN_PREPROCESS {
 
 
     */
-    label "realign_preprocess"
+    label "time_8h"
+    label "mem_8h"
 
-    publishDir "${projectDir}/output/tumor", mode: "copy"
-
+    publishDir "${projectDir}/output/tumor", mode: "symlink"
     input:
     path jar_files
     tuple val(ix), val(sample_id), val(normal_id), val(pair_id), path(maf), path(maf_idx), path(recal_bam), path(recal_bai)
@@ -43,8 +43,8 @@ process TUMOR_REALIGN_PREPROCESS {
 
 
 process NORMAL_REALIGN_PREPROCESS {
-    label "realign_preprocess"
-
+    label "time_8h"
+    label "mem_8h"
     /*
     Input:
     jar_files libdir
@@ -56,7 +56,7 @@ process NORMAL_REALIGN_PREPROCESS {
 
     Output:
     */
-    publishDir "${projectDir}/output/normal", mode: "copy"
+    publishDir "${projectDir}/output/normal", mode: "symlink"
 
     input:
     path jar_files
@@ -81,8 +81,9 @@ process NORMAL_REALIGN_PREPROCESS {
 }
 
 process TUMOR_HISAT_ALIGN {
-    label "hisat_align"
-    publishDir "${projectDir}/output/tumor", mode: "copy"
+    label "mem6"
+    label "time_1h"
+    publishDir "${projectDir}/output/tumor", mode: "symlink"
 
     /*
     Summary: Align RNA-seq reads to reference genome using HISAT
@@ -109,8 +110,9 @@ process TUMOR_HISAT_ALIGN {
 }
 
 process PAIR_HISAT_ALIGN {
-    label "hisat_align"
-    publishDir "${projectDir}/output/normal", mode: "copy"
+    label "mem6"
+    label "time_1h"
+    publishDir "${projectDir}/output/normal", mode: "symlink"
 
     /*
     Summary: Align RNA-seq reads to reference genome using HISAT
@@ -138,8 +140,8 @@ process PAIR_HISAT_ALIGN {
 
 
 process SORT_BAM_COORD_HIS_NORMAL{
-    label "very_short_process"
-
+    label "time_1h"
+    label "mem6"
     /*
     Summary: Sorts the input SAM or BAM file by queryname
 
@@ -153,7 +155,7 @@ process SORT_BAM_COORD_HIS_NORMAL{
 
     Ref: https://gatk.broadinstitute.org/hc/en-us/articles/4418062801691-SortSam-Picard-
     */
-    publishDir "${projectDir}/output/normal", mode: "copy"
+    publishDir "${projectDir}/output/normal", mode: "symlink"
 
     input:
     tuple val(ix), val(sample_id), path(read_groups_sam)
@@ -168,7 +170,8 @@ process SORT_BAM_COORD_HIS_NORMAL{
 }
 
 process SORT_BAM_COORD_HIS_TUMOR{
-    label "very_short_process"
+    label "time_1h"
+    label "mem6"
 
     /*
     Summary: Sorts the input SAM or BAM file by queryname
@@ -183,7 +186,7 @@ process SORT_BAM_COORD_HIS_TUMOR{
 
     Ref: https://gatk.broadinstitute.org/hc/en-us/articles/4418062801691-SortSam-Picard-
     */
-    publishDir "${projectDir}/output/tumor", mode: "copy"
+    publishDir "${projectDir}/output/tumor", mode: "symlink"
 
     input:
     tuple val(ix), val(sample_id), path(read_groups_sam)
@@ -198,8 +201,9 @@ process SORT_BAM_COORD_HIS_TUMOR{
 }
 
 process INDEX_BAM_HIS_NORMAL {
-    label "very_short_process"
-    /*
+    label "time_30m"
+    label "mem2"
+        /*
     Summary: Indexes a BAM file using samtools
 
     Input:
@@ -212,7 +216,7 @@ process INDEX_BAM_HIS_NORMAL {
 
     Ref: http://www.htslib.org/doc/samtools-index.html
     */
-    publishDir "${projectDir}/output/normal", mode: "copy"
+    publishDir "${projectDir}/output/normal", mode: "symlink"
 
     input:
     tuple val(ix), val(sample_id), path(bam_file)
@@ -226,7 +230,8 @@ process INDEX_BAM_HIS_NORMAL {
 
 
 process INDEX_BAM_HIS_TUMOR {
-    label "very_short_process"
+    label "time_30m"
+    label "mem2"
     /*
     Summary: Indexes a BAM file using samtools
 
@@ -240,7 +245,7 @@ process INDEX_BAM_HIS_TUMOR {
 
     Ref: http://www.htslib.org/doc/samtools-index.html
     */
-    publishDir "${projectDir}/output/tumor", mode: "copy"
+    publishDir "${projectDir}/output/tumor", mode: "symlink"
 
     input:
     tuple val(ix), val(sample_id), path(bam_file)
@@ -252,7 +257,9 @@ process INDEX_BAM_HIS_TUMOR {
     template "index_bam.sh"
 }
 process MUTECT_R2 {
-    publishDir "${projectDir}/output/tumor", mode: "copy"
+    label "time_8h"
+    label "mem40"
+    publishDir "${projectDir}/output/tumor", mode: "symlink"
 
     /*
     Summary: Run MuTect2 on tumor-normal pair
@@ -289,8 +296,9 @@ process MUTECT_R2 {
 }
 
 process FILTERING {
-    label "very_short_low_mem"
-    publishDir "${projectDir}/output/tumor", mode: "copy"
+    label "time_30m"
+    label "mem2"
+    publishDir "${projectDir}/output/tumor", mode: "symlink"
     /*
     SUMMARY:
     Filtering of results from variant calling (Mutect Round 2)
@@ -338,29 +346,33 @@ process FILTERING {
 
 
 process CONVERT_TO_AVINPUT {
-    label "very_short_process"
-    publishDir "${projectDir}/output/tumor", mode: "copy"
+    label "mem8"
+    label "time_30m"
+    publishDir "${projectDir}/output/tumor", mode: "symlink"
 
     input:
     tuple val(ix), val(sample_id), path(mutect_vcf)
 
     output:
-    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}.avinput")
+    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_${suffix}.avinput")
+    val suffix
 
     script:
     template "convert_to_avinput.sh"
 }
 
 process ANNOVAR {
-    label "very_short_process"
-    publishDir "${projectDir}/output/mutations_prefiltered", mode: "copy"
+    label "mem8"
+    label "time_30m"
+    publishDir "${projectDir}/output/mutations_prefiltered", mode: "symlink"
 
     input:
     tuple val(ix), val(sample_id), path(av_input)
     path human_db
+    val suffix
 
     output:
-    path "${sample_id}/${sample_id}.annovar.hg19_multianno.txt"
+    path "${sample_id}/${sample_id}_${suffix}.annovar.hg19_multianno.txt"
 
     script:
     template "annovar.sh"

@@ -1,4 +1,6 @@
 process STAR_ALIGN {
+    label "mem32"
+    label "time_1h"
     /*
     Summary:
 
@@ -16,7 +18,7 @@ process STAR_ALIGN {
     [p. 7-8]
 
     */
-    publishDir "${projectDir}/output/tumor", mode: "copy"
+    publishDir "${projectDir}/output/tumor", mode: "symlink"
 
     input:
     path index_dir

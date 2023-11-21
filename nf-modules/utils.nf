@@ -1,6 +1,6 @@
 process HISAT_ALIGN_TUMOR_BAM {
-    label "sam_to_bam"
-
+    label "time_1h"
+    label "mem8"
     /*
     Summary: Convert SAM to BAM file
 
@@ -13,7 +13,7 @@ process HISAT_ALIGN_TUMOR_BAM {
     bam_file: BAM file containing reads
 
     */
-    publishDir "${projectDir}/output/tumor", mode: "copy"
+    publishDir "${projectDir}/output/tumor", mode: "symlink"
 
     input:
     tuple val(ix), val(sample_id), path(sam_file)
@@ -26,7 +26,8 @@ process HISAT_ALIGN_TUMOR_BAM {
 }
 
 process HISAT_ALIGN_PAIR_BAM {
-    label "sam_to_bam"
+    label "time_1h"
+    label "mem8"
     /*
     Summary: Convert SAM to BAM file
 
@@ -39,7 +40,7 @@ process HISAT_ALIGN_PAIR_BAM {
     bam_file: BAM file containing reads
 
     */
-    publishDir "${projectDir}/output/normal", mode: "copy"
+    publishDir "${projectDir}/output/normal", mode: "symlink"
 
     input:
     tuple val(ix), val(sample_id), path(sam_file)
@@ -52,7 +53,8 @@ process HISAT_ALIGN_PAIR_BAM {
 }
 
 process SAM_TO_BAM {
-    label "sam_to_bam"
+    label "time_1h"
+    label "mem8"
     /*
     Summary: Convert SAM to BAM file
 
@@ -65,7 +67,7 @@ process SAM_TO_BAM {
     bam_file: BAM file containing reads
 
     */
-    publishDir "${projectDir}/output/normal", mode: "copy"
+    publishDir "${projectDir}/output/normal", mode: "symlink"
 
     input:
     tuple val(ix), val(sample_id), path(sam_file)
@@ -77,3 +79,24 @@ process SAM_TO_BAM {
     script:
     template "sam_to_bam_sq.sh"
 }
+
+// process CONVERT_TO_MAF {
+//     label "very_short_process"
+//     publishDir "${projectDir}/output/tumor", mode: "symlink"
+
+//     input:
+//     tuple val(ix), val(sample_id), path(input_file)
+//     val suffix
+
+//     output:
+//     tuple val(ix), val(sample_id),  path("${sample_id}/${sample_id}_${suffix}.maf")
+
+//     script:
+//     """
+//     Rscript "${projectDir}/scripts/annovar_to_maf.R" \
+//         --input_file "\$PWD/${input_file}" \
+//         --output_dir "\$PWD/${sample_id}" \
+//         --output_file "\$PWD/${sample_id}/${sample_id}_${suffix}"
+//     """
+
+// }

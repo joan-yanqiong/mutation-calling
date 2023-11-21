@@ -1,6 +1,7 @@
 include { STAR_ALIGN } from "../nf-modules/rna-alignment.nf"
 include { ADD_READ_GROUPS; MARK_DUPLICATES; SPLIT_CIGARS; BQSR_TABLE; APPLY_BQSR} from "../nf-modules/rna-preprocessing.nf"
-include { MUTECT_R1; ONCOTATOR} from "../nf-modules/rna_mutect1.nf"
+include { MUTECT_R1; ONCOTATOR; CONVERT_TO_AVINPUT_R1; ANNOVAR_R1} from "../nf-modules/rna_mutect1.nf"
+include { CONVERT_TO_MAF } from "../nf-modules/utils.nf"
 
 workflow RNA_TUMOR_PROCESSING {
     take:
@@ -38,9 +39,14 @@ workflow MUTECT_ROUND1 {
 
     main:
     MUTECT_R1(rna_tumor_processed, ref_genome, dbSNP_set, cosmic_set)
-    ONCOTATOR(MUTECT_R1.out.output)
+    // CONVERT_TO_AVINPUT_R1(MUTECT_R1.out.output, suffix = "annovar_R1")
+    ANNOVAR_R1(MUTECT_R1.out.output, human_db = params.human_db, suffix = "annovar_R1")
+    // CONVERT_TO_MAF(ANNOVAR_R1.out, suffix = "annovar_R1")
+
+    // ONCOTATOR(MUTECT_R1.out.output)
 
     emit:
-    ONCOTATOR.out.onco_maf
+    // CONVERT_TO_MAF.out
+    // ONCOTATOR.out.onco_maf
 
 }

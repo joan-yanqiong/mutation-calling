@@ -1,5 +1,7 @@
 
 process BWA_INDEX {
+    label "mem8"
+    label "time_4h"
     /*
     Summary: Index database sequences in the FASTA format using bwa, for DNA
     normal samples.
@@ -20,7 +22,7 @@ process BWA_INDEX {
     Ref: https://bio-bwa.sourceforge.net/bwa.shtml
     */
 
-    publishDir "${projectDir}/data/indices", mode: "copy"
+    publishDir "${projectDir}/data/indices", mode: "symlink"
 
     input:
     val index_dir
@@ -35,6 +37,9 @@ process BWA_INDEX {
 }
 
 process STAR_INDEX {
+    label "mem32"
+    label "time_4h"
+
     /*
     Summary: Generating genome indexes for RNA tumor samples
 
@@ -50,7 +55,7 @@ process STAR_INDEX {
     https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf
     [p. 5]
     */
-    publishDir "${projectDir}/data/indices", mode: "copy"
+    publishDir "${projectDir}/data/indices", mode: "symlink"
 
     input:
     val index_dir
@@ -64,9 +69,10 @@ process STAR_INDEX {
     template "star_index.sh"
 }
 
-
 process HISAT_INDEX {
-    publishDir "${projectDir}/data/indices", mode: "copy"
+    label "mem8"
+    label "time_4h"
+    publishDir "${projectDir}/data/indices", mode: "symlink"
 
     /*
     Summary: Build HISAT index
