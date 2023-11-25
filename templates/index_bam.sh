@@ -8,4 +8,6 @@ mkdir -p ${sample_id}
 echo "\$(date)  Indexing BAM file..."
 samtools index -b ${bam_file} "${sample_id}/${bam_file}.bai"
 
+touch "ok.txt"
+
 echo "\$(date)  COMPLETED!"

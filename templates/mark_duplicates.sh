@@ -14,4 +14,6 @@ java -jar \${picard_dir}/picard.jar MarkDuplicates \
     O="${sample_id}/${sample_id}_marked_dup.bam" \
     M="${sample_id}/${sample_id}_marked_dup_metrics.txt"
 
+touch "ok.txt"
+
 echo "\$(date)  COMPLETED!"

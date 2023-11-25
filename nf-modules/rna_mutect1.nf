@@ -12,17 +12,19 @@ process MUTECT_R1 {
 
     */
 
-    publishDir "${projectDir}/output/tumor", mode: "symlink"
+    publishDir "${projectDir}/${params.run_name}/output/tumor", mode: "symlink"
 
     input:
     tuple val(ix), val(sample_id), path(recal_bam), path(recal_bai)
     tuple path(ref_path), path(ref_path_dict), path(ref_path_fai)
     tuple path(dbSNP_vcf), path(dbSNP_vcf_idx)
     tuple path(cosmic_vcf), path(cosmic_vcf_idx)
+    val suffix
 
     output:
-    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_mutect.vcf"), path("${sample_id}/${sample_id}_mutect.vcf.idx"), emit: output
-    path "${sample_id}/${sample_id}_call_stats.txt", emit: call_stats
+    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_${suffix}.vcf"), path("${sample_id}/${sample_id}_${suffix}.vcf.idx"), emit: output
+    path "${sample_id}/${sample_id}_${suffix}_call_stats.txt", emit: call_stats
+    path "${sample_id}/ok.txt"
 
     script:
     template "mutect_R1.sh"
@@ -46,7 +48,7 @@ process ONCOTATOR {
     Ref:
     */
 
-    publishDir "${projectDir}/output/tumor", mode: "symlink"
+    publishDir "${projectDir}/${params.run_name}/output/tumor", mode: "symlink"
 
     input:
     tuple val(ix),val(sample_id), path(mutect_vcf), path(mutect_vcf_index)
@@ -54,43 +56,28 @@ process ONCOTATOR {
     output:
     tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_onco.maf"), path(mutect_vcf_index), emit: onco_maf
     path "${sample_id}/oncotator.log"
+    path "${sample_id}/ok.txt"
 
     script:
     template "oncotator.sh"
 
 }
 
-// TODO: testing is necessary!
-process CONVERT_TO_AVINPUT_R1 {
-    label "time_30m"
-    label "mem2"
-    publishDir "${projectDir}/output/tumor", mode: "symlink"
-
-    input:
-    tuple val(ix), val(sample_id), path(mutect_vcf), path(mutect_vcf)
-    val suffix
-
-    output:
-    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_${suffix}.avinput"), path(mutect_vcf_index)
-
-    script:
-    template "convert_to_avinput.sh"
-}
-
 process ANNOVAR_R1 {
     label "time_30m"
     label "mem2"
-    publishDir "${projectDir}/output/tumor/", mode: "symlink"
+    publishDir "${projectDir}/${params.run_name}/output/tumor/", mode: "copy"
 
     input:
-    tuple val(ix), val(sample_id), path(av_input), path(mutect_vcf_index)
+    tuple val(ix), val(sample_id), path(mutct_vcf), path(mutect_vcf_index)
     path human_db
     val suffix
 
     output:
-    path "${sample_id}/${sample_id}_${suffix}.annovar.vcf"
-    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_${suffix}.annovar.hg19_multianno.txt"),
-    path(mutect_vcf_index), emit: annovar
+    path "${sample_id}/${sample_id}_${suffix}.avinput"
+    path "${sample_id}/${sample_id}_${suffix}.hg19_multianno.txt"
+    path "${sample_id}/${sample_id}_${suffix}.hg19_multianno.vcf"
+    path "ok.txt"
 
     script:
     template "annovar.sh"

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#SBATCH -J run_nf_mutation_calling
+#SBATCH -J launch_bulkRNAseq_mutation_calling
 #SBATCH --mail-type=END,FAIL
 #SBATCH --mail-user=joan.kant@uhn.ca
 #SBATCH --partition=long
@@ -7,7 +7,7 @@
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=1G
-#SBATCH --time=21-00:00:00
+#SBATCH --time=10-00:00:00
 #SBATCH --output=slurm_out/%x_%j.out
 #SBATCH --error=slurm_out/%x_%j.out
 
@@ -16,7 +16,7 @@ module load java
 # H4H
 base_dir="/cluster/projects/gaitigroup/Users/Joan/"
 nf_exec="/cluster/home/t119972uhn/nextflow"
-work_dir="${base_dir}/nf_work"
+work_dir="${base_dir}/nf_work_bulk_rnasq_mutation_calling"
 nf_profile="slurm"
 
 echo "$(date)   Create work directory for nextflow if not existing..."
@@ -24,10 +24,12 @@ mkdir -p "${work_dir}"
 
 echo "$(date)   Setup paths..."
 project_dir="${base_dir}/h4h-mutation-calling"
+outdir="${project_dir}/nf-logs"
+run_name="test_set"
 
-data_dir="${base_dir}/001_data/Lupus/"
+data_dir="${project_dir}/001_data/"
 
-sample_sheet="${base_dir}/000_misc/Lupus/rnaseq_sample_sheet_todo.csv"
+sample_sheet="${project_dir}/000_misc/test_set.csv"
 
 # HELPER FILES (REFERENCES)
 ref_genome="${data_dir}/reference_genome/Homo_sapiens_assembly19.fasta"
@@ -53,16 +55,16 @@ jar_files="${data_dir}/jar_files"
 
 # Indexing with star, hisat and bwa
 star_index_dir="${data_dir}/indices/STAR_Homo_sapiens_assembly19"
-hisat_index_dir="/cluster/projects/gaitigroup/Users/Joan/utilities/skeleton/nf_pipeline/data/indices/HISAT_Homo_sapiens_assembly19"
+hisat_index_dir="${data_dir}/indices/HISAT_Homo_sapiens_assembly19"
 bwa_index_dir="${data_dir}/indices/BWA_Homo_sapiens_assembly19"
 
 # Create main output directories
 echo "$(date)   Create output directories..."
 mkdir -p "${data_dir}/indices"
 mkdir -p "${project_dir}/logs"
-mkdir -p "${project_dir}/output/normal"
-mkdir -p "${project_dir}/output/tumor"
-mkdir -p "${project_dir}/output/mutations_prefiltered"
+mkdir -p "${project_dir}/output/${run_name}/normal"
+mkdir -p "${project_dir}/output/${run_name}/tumor"
+mkdir -p "${project_dir}/output/${run_name}/mutations_prefiltered"
 
     # -resume "665f4183-3717-4b49-9089-a99ba7b10b0f" \
 
@@ -79,7 +81,6 @@ ${nf_exec} run ${project_dir} -with-report -with-trace \
     --indel_db1 ${indel_db1} \
     --indel_db2 ${indel_db2} \
     --jar_files ${jar_files} \
-    --outdir ${project_dir}/logs \
     --star_index_dir ${star_index_dir} \
     --hisat_index_dir ${hisat_index_dir} \
     --bwa_index_dir ${bwa_index_dir} \
@@ -89,6 +90,9 @@ ${nf_exec} run ${project_dir} -with-report -with-trace \
     --radar_bed ${radar_bed} \
     --pseudo_genes_bed ${pseudo_genes_bed} \
     --pseudo_genes_bed2 ${pseudo_genes_bed2} \
-    --min_alt_counts ${min_alt_counts}
+    --min_alt_counts ${min_alt_counts} \
+    --outdir ${outdir} \
+    --run_name ${run_name}
+
 
 echo "$(date)   COMPLETED!"

@@ -4,15 +4,15 @@ process ADD_READ_GROUPS {
     /* ADD READ GROUPS
     */
 
-    publishDir "${projectDir}/output/tumor", mode: "symlink"
+    publishDir "${projectDir}/output/${params.run_name}/tumor", mode: "symlink"
 
     input:
     tuple val(ix), val(sample_id), path(mapped_bam)
     val(sample_type)
-    val(suffix)
 
     output:
-    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_Aligned.sortedByCoord.out_read_groups.bam"), emit: output
+    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_RG.bam"), emit: output
+    path "ok.txt"
 
     script:
     template "add_read_groups.sh"
@@ -34,7 +34,7 @@ process MARK_DUPLICATES {
 
     Ref: https://gatk.broadinstitute.org/hc/en-us/articles/360037052812-MarkDuplicates-Picard-
     */
-    publishDir "${projectDir}/output/tumor", mode: "symlink"
+    publishDir "${projectDir}/output/${params.run_name}/tumor", mode: "symlink"
 
     input:
     tuple val(ix), val(sample_id), path(read_groups_file)
@@ -42,6 +42,7 @@ process MARK_DUPLICATES {
     output:
     path "${sample_id}/${sample_id}_marked_dup_metrics.txt", emit: metrics_file
     tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_marked_dup.bam"), emit: output
+    path "ok.txt"
 
     script:
     template "mark_duplicates.sh"
@@ -64,7 +65,7 @@ process SPLIT_CIGARS {
     Ref: https://gatk.broadinstitute.org/hc/en-us/articles/360036858811-SplitNCigarReads
 
     */
-    publishDir "${projectDir}/output/tumor", mode: "symlink"
+    publishDir "${projectDir}/output/${params.run_name}/tumor", mode: "symlink"
 
     input:
     tuple val(ix), val(sample_id), path(marked_dup_bam)
@@ -73,6 +74,7 @@ process SPLIT_CIGARS {
     output:
     tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_split.bam"),
     path("${sample_id}/${sample_id}_split.bai"), emit: output
+    path "ok.txt"
 
     script:
     template "split_cigars.sh"
@@ -96,7 +98,7 @@ process BQSR_TABLE {
 
     Ref: https://gatk.broadinstitute.org/hc/en-us/articles/360036898312-BaseRecalibrator
     */
-    publishDir "${projectDir}/output/tumor", mode: "symlink"
+    publishDir "${projectDir}/output/${params.run_name}/tumor", mode: "symlink"
 
     input:
     tuple val(ix), val(sample_id), path(bam_file), path(bai_file)
@@ -105,6 +107,7 @@ process BQSR_TABLE {
 
     output:
     tuple val(ix), val(sample_id), path(bam_file), path("${sample_id}/${sample_id}_recal_data.table"), emit: output
+    path "${sample_id}/ok.txt"
 
     script:
     template "bqsr_table.sh"
@@ -127,7 +130,7 @@ process APPLY_BQSR {
     Ref: https://gatk.broadinstitute.org/hc/en-us/articles/360037055712-ApplyBQSR
 
     */
-    publishDir "${projectDir}/output/tumor", mode: "symlink"
+    publishDir "${projectDir}/output/${params.run_name}/tumor", mode: "symlink"
 
     input:
     tuple val(ix), val(sample_id), path(bam_file), path(recal_data_table)
@@ -135,6 +138,8 @@ process APPLY_BQSR {
 
     output:
     tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_recal.bam"), path("${sample_id}/${sample_id}_recal.bai"), emit: output
+    path "${sample_id}/ok.txt"
+
 
     script:
     template "apply_bqsr.sh"

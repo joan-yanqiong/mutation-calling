@@ -18,7 +18,7 @@ process STAR_ALIGN {
     [p. 7-8]
 
     */
-    publishDir "${projectDir}/output/tumor", mode: "symlink"
+    publishDir "${projectDir}/${params.run_name}/output/tumor", mode: "symlink"
 
     input:
     path index_dir
@@ -30,7 +30,8 @@ process STAR_ALIGN {
     path "${sample_id}/mapped/${sample_id}__STARtmp"
     path "${sample_id}/mapped/${sample_id}_Log.progress.out"
     path "${sample_id}/mapped/${sample_id}_SJ.out.tab"
-    tuple val(ix), val(sample_id), path("${sample_id}/mapped/${sample_id}_Aligned.sortedByCoord.out.bam"), emit: output
+    tuple val(ix), val(sample_id), path("${sample_id}/mapped/${sample_id}_star_aligned.bam"), emit: output
+    path "ok.txt"
 
     script:
     template "star_align.sh"

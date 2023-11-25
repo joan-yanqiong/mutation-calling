@@ -15,4 +15,6 @@ gatk ApplyBQSR \
     --bqsr-recal-file "../${recal_data_table}" \
     -O "${sample_id}_recal.bam"
 
+touch "ok.txt"
+
 echo "\$(date)  COMPLETED!"

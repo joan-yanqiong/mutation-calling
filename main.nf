@@ -63,7 +63,7 @@ workflow {
         cosmic_set = cosmic_set
     )
 
-    // ---- HANDLING NORMAL SAMPLES ---- //
+    // ---- HANDLING NORMAL SAMPLES ---- //s
     DNA_NORMAL_PROCESSING(
         index_dir = BUILD_INDICES.out.bwa_index,
         indel_db1_set = indel_db1_set,

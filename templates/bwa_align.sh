@@ -26,6 +26,8 @@ bwa mem \
     ${index_dir}/${index_dir} \
     \$fq1 \
     \$fq2 \
-    > ${sample_id}/${sample_id}_mapped.sam
+    > ${sample_id}/${sample_id}_bwa_aligned.sam
+
+touch "ok.txt"
 
 echo "\$(date)  COMPLETED!"

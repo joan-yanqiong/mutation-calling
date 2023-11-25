@@ -11,4 +11,6 @@ cd ${index_dir}_${ref_path.simpleName}
 echo "\$(date)  Build genome index..."
 bwa index -p ${index_dir}_${ref_path.simpleName} "../${ref_path}"
 
+touch "ok.txt"
+
 echo "\$(date)\tCOMPLETED!"

@@ -11,4 +11,7 @@ cd ${index_dir}_${ref_path.simpleName}
 echo "\$(date)  Build Hisat2 index..."
 hisat2-build -p ${task.cpus} "../${ref_path}" ${index_dir}_${ref_path.simpleName}
 
+touch "ok.txt"
+
+
 echo "\$(date)  COMPLETED!"

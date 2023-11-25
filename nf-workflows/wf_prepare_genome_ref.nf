@@ -16,7 +16,7 @@ workflow SET_REF_GENOME {
     } else {
         CREATE_FASTA_DICT(params.ref_genome)
         CREATE_FASTA_INDEX(params.ref_genome)
-        ref_genome = CREATE_FASTA_DICT.out.join(CREATE_FASTA_INDEX.out, by: 0)
+        ref_genome = CREATE_FASTA_DICT.out.output.join(CREATE_FASTA_INDEX.out.output, by: 0)
     }
     println ref_genome
     emit:

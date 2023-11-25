@@ -14,29 +14,22 @@ process CREATE_FASTA_DICT {
 
     */
     publishDir "${projectDir}/data/reference_genome", mode: "symlink"
+
     input:
     path ref_genome
 
     output:
-    tuple path(ref_genome), path("${ref_genome.simpleName}.dict")
+    tuple path(ref_genome), path("${ref_genome.simpleName}.dict"), emit: output
+    path "ok.txt"
 
     script:
-    """
-    #!/bin/bash
-
-    echo "\$(date)\tLoad gatk..."
-    module load gatk
-
-    echo "\$(date)\tCreating the FASTA sequence dictionary file..."
-    gatk CreateSequenceDictionary -R ${ref_genome}
-    echo "\$(date)\tCOMPLETED"
-    """
+    template "fasta_dict.sh"
 }
 
 process CREATE_FASTA_INDEX {
     label "time_30m"
     label "mem8"
-        /*
+    /*
     Generating the dictionary and index files
 
     Input:
@@ -51,20 +44,10 @@ process CREATE_FASTA_INDEX {
     path ref_genome
 
     output:
-    tuple path(ref_genome), path("${ref_genome.simpleName}.fasta.fai")
+    tuple path(ref_genome), path("${ref_genome.simpleName}.fasta.fai"), emit: output
+    path "ok.txt"
 
     script:
-    """
-    #!/bin/bash
-
-    echo "\$(date)\tLoad samtools..."
-    module load samtools
-
-    echo "\$(date)\tCreating the FASTA index file..."
-    samtools faidx ${ref_genome}
-
-    echo "\$(date)\tCOMPLETED"
-
-    """
+    template "fasta_index.sh"
 
 }

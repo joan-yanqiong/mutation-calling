@@ -14,14 +14,16 @@ process BWA_ALIGN {
 
     Ref: https://bio-bwa.sourceforge.net/bwa.shtml
     */
-    publishDir "${projectDir}/output/normal", mode: "symlink"
+    publishDir "${projectDir}/${params.run_name}/output/normal", mode: "symlink"
 
     input:
     tuple val(ix), val(sample_id), path(dir)
     path index_dir
 
     output:
-    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_mapped.sam"), emit: mapped_sam
+    tuple val(ix), val(sample_id),
+    path("${sample_id}/${sample_id}_bwa_aligned.sam"), emit: mapped_sam
+    path "ok.txt"
 
     script:
     template "bwa_align.sh"

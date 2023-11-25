@@ -4,15 +4,16 @@ process ADD_READ_GROUPS_NORMAL {
     label 'mem2'
     label 'time_1h'
 
-    publishDir "${projectDir}/output/normal", mode: "symlink"
+    publishDir "${projectDir}/output/${params.run_name}/normal", mode: "symlink"
 
     input:
     tuple val(ix), val(sample_id), path(mapped_bam)
     val sample_type
-    val suffix
+
 
     output:
-    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_${suffix}.bam"), emit: output
+    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_RG.bam"), emit: output
+    path "ok.txt"
 
     script:
     template "add_read_groups.sh"
@@ -34,15 +35,15 @@ process SORT_BAM {
 
     Ref: https://gatk.broadinstitute.org/hc/en-us/articles/4418062801691-SortSam-Picard-
     */
-    publishDir "${projectDir}/output/normal", mode: "symlink"
+    publishDir "${projectDir}/output/${params.run_name}/normal", mode: "symlink"
 
     input:
     tuple val(ix), val(sample_id), path(read_groups_sam)
     val sort_order
-    val suffix
 
     output:
-    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_${suffix}.bam"), emit: output
+    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_sortedBy_${sort_order}.bam"), emit: output
+    path "ok.txt"
 
     script:
     template "sort_bam.sh"
@@ -66,7 +67,7 @@ process MARK_DUPLICATES_NORMAL {
 
     Ref: https://gatk.broadinstitute.org/hc/en-us/articles/360037052812-MarkDuplicates-Picard-
     */
-    publishDir "${projectDir}/output/normal", mode: "symlink"
+    publishDir "${projectDir}/output/${params.run_name}/normal", mode: "symlink"
 
     input:
     tuple val(ix), val(sample_id), path(read_groups_file)
@@ -74,6 +75,7 @@ process MARK_DUPLICATES_NORMAL {
     output:
     path "${sample_id}/${sample_id}_marked_dup_metrics.txt", emit: metrics_file
     tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_marked_dup.bam"), emit: output
+    path "ok.txt"
 
     script:
     template "mark_duplicates.sh"
@@ -96,15 +98,15 @@ process SORT_BAM_COORD {
 
     Ref: https://gatk.broadinstitute.org/hc/en-us/articles/4418062801691-SortSam-Picard-
     */
-    publishDir "${projectDir}/output/normal", mode: "symlink"
+    publishDir "${projectDir}/output/${params.run_name}/normal", mode: "symlink"
 
     input:
     tuple val(ix), val(sample_id), path(read_groups_sam)
     val sort_order
-    val suffix
 
     output:
-    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_${suffix}.bam"), emit: output
+    tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_sortedBy_${sort_order}.bam"), emit: output
+    path "ok.txt"
 
     script:
     template "sort_bam.sh"
@@ -126,23 +128,17 @@ process INDEX_BAM {
 
     Ref: http://www.htslib.org/doc/samtools-index.html
     */
-    publishDir "${projectDir}/output/normal", mode: "symlink"
+    publishDir "${projectDir}/output/${params.run_name}/normal", mode: "symlink"
 
     input:
     tuple val(ix), val(sample_id), path(sorted_bam)
 
     output:
     tuple val(ix), val(sample_id), path(sorted_bam), path("${sample_id}/${sample_id}_marked_dup_sorted_coord.bam.bai"), emit: output
+    path "ok.txt"
 
     script:
-    """
-    #!/bin/bash
-    mkdir -p ${sample_id}
-    module load samtools
-
-
-    samtools index -b ${sorted_bam} "${sample_id}/${sample_id}_marked_dup_sorted_coord.bam.bai"
-    """
+    template "index_bam.sh"
 }
 
 process INDEL_REALIGN_TARGET {
@@ -167,7 +163,7 @@ process INDEL_REALIGN_TARGET {
     https://gatk.broadinstitute.org/hc/en-us/articles/360036510732-SortSam-Picard-
     http://www.htslib.org/doc/samtools-index.html
     */
-    publishDir "${projectDir}/output/normal", mode: "symlink"
+    publishDir "${projectDir}/output/${params.run_name}/normal", mode: "symlink"
 
     input:
     tuple val(ix), val(sample_id), path(marked_dup_bam), path(marked_dup_bam_bai)
@@ -177,6 +173,7 @@ process INDEL_REALIGN_TARGET {
 
     output:
     tuple val(ix), val(sample_id), path(marked_dup_bam), path(marked_dup_bam_bai), path("${sample_id}/${sample_id}_realigner.intervals"), emit: output
+    path "ok.txt"
 
     script:
     template "indel_realign_target.sh"
@@ -199,7 +196,7 @@ process INDEL_REALIGNER {
 
     Ref: https://github.com/broadinstitute/gatk-docs/blob/master/gatk3-tutorials/(howto)_Perform_local_realignment_around_indels.md#section2
     */
-    publishDir "${projectDir}/output/normal", mode: "symlink"
+    publishDir "${projectDir}/output/${params.run_name}/normal", mode: "symlink"
 
     input:
     tuple val(ix), val(sample_id), path(marked_dup_bam), path(marked_dup_bai), path(realigner_intervals)
@@ -210,6 +207,7 @@ process INDEL_REALIGNER {
     output:
     tuple val(ix), val(sample_id),
     path("${sample_id}/${sample_id}_realigned.bam"), path("${sample_id}/${sample_id}_realigned.bai"), emit: output
+    path "ok.txt"
 
     script:
     template "indel_realigner.sh"
@@ -233,7 +231,7 @@ process NORMAL_BQSR_TABLE {
 
     Ref: https://gatk.broadinstitute.org/hc/en-us/articles/360036898312-BaseRecalibrator
     */
-    publishDir "${projectDir}/output/normal", mode: "symlink"
+    publishDir "${projectDir}/output/${params.run_name}/normal", mode: "symlink"
 
     input:
     tuple val(ix), val(sample_id), path(bam_file), path(bai_file)
@@ -242,6 +240,7 @@ process NORMAL_BQSR_TABLE {
 
     output:
     tuple val(ix), val(sample_id), path(bam_file), path("${sample_id}/${sample_id}_recal_data.table"), emit: output
+    path "ok.txt"
 
     script:
     template "bqsr_table.sh"
@@ -263,7 +262,7 @@ process NORMAL_APPLY_BQSR {
 
     Ref: https://gatk.broadinstitute.org/hc/en-us/articles/360037055712-ApplyBQSR
     */
-    publishDir "${projectDir}/output/normal", mode: "symlink"
+    publishDir "${projectDir}/output/${params.run_name}/normal", mode: "symlink"
 
     input:
     tuple val(ix), val(sample_id), path(bam_file), path(recal_data_table)
@@ -271,6 +270,7 @@ process NORMAL_APPLY_BQSR {
 
     output:
     tuple val(sample_id), path("${sample_id}/${sample_id}_recal.bam"), path("${sample_id}/${sample_id}_recal.bai"), emit: output
+    path "${sample_id}/ok.txt"
 
     script:
     template "apply_bqsr.sh"

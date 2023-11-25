@@ -17,4 +17,5 @@ oncotator "../${mutect_vcf}" \
     -i VCF \
     -o TCGAMAF
 
+touch "ok.txt"
 echo "\$(date)  COMPLETED!"

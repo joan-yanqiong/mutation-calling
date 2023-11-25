@@ -17,11 +17,12 @@ fi
 echo "\$(date)  Adding read groups to ${sample_id}..."
 java -jar \${picard_dir}/picard.jar AddOrReplaceReadGroups \
     I="${mapped_bam}" \
-    O="${sample_id}/${sample_id}_${suffix}.bam" \
+    O="${sample_id}/${sample_id}_RG.bam" \
     RGID=\${lib_id} \
     RGLB=lib_\${lib_id} \
     RGPL=ILLUMINA \
     RGPU=ILLUMINA_${sample_id}_lib\${lib_id} \
     RGSM=${sample_id}
 
+touch "ok.txt"
 echo "\$(date)  COMPLETED!"

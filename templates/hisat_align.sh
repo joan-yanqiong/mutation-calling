@@ -29,9 +29,11 @@ hisat2 -p "${task.cpus}" -k 5 \
     -x "${index_dir}/${index_dir}" \
     -1 "${fastq1}" \
     -2 "${fastq2}" \
-    -S "\${output_folder}/\${output_file_prefix}_aligned_hisat2.sam" \
+    -S "\${output_folder}/\${output_file_prefix}_hisat2_aligned.sam" \
     --rg-id=1 \
     --rg "SM:\${output_file_prefix}\\tPU:ILLUMINA_\${output_file_prefix}_lib1" \
     --rg "LB:lib_1" \
     --rg "PL:ILLUMINA"
+
+touch "ok.txt"
 echo "\$(date)\tCompleted"

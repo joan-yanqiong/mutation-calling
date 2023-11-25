@@ -42,4 +42,9 @@ STAR --genomeDir ${index_dir} \
 --outFilterMatchNminOverLread 0.33 \
 --limitSjdbInsertNsj 1200000
 
+# Rename bam file
+mv "${sample_id}/mapped/${sample_id}_Aligned.sortedByCoord.out.bam" "${sample_id}/mapped/${sample_id}_star_aligned.bam"
+
+touch "ok.txt"
+
 echo "\$(date)  COMPLETED!"

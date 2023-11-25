@@ -14,8 +14,9 @@ java -jar \$mutect_dir/muTect.jar \
     --input_file:tumor "../${recal_bam}" \
     -cosmic "../${cosmic_vcf}" \
     -dbsnp "../${dbSNP_vcf}" \
-    -o "${sample_id}_call_stats.txt" \
-    -vcf "${sample_id}_mutect.vcf" \
+    -o "${sample_id}_${suffix}_call_stats.txt" \
+    -vcf "${sample_id}_${suffix}.vcf" \
     -U ALLOW_N_CIGAR_READS
+touch "ok.txt"
 
 echo "\$(date) COMPLETED!"

@@ -15,10 +15,12 @@ java -jar \$mutect_dir/muTect.jar \
     --input_file:normal "../${normal_tumor_hisat_bam}" \
     -cosmic "../${cosmic_vcf}" \
     -dbsnp "../${dbSNP_vcf}" \
-    -o ${sample_id}_second_call_stats.txt \
-    -vcf ${sample_id}_second_mutect.vcf \
+    -o ${sample_id}_${suffix}_call_stats.txt \
+    -vcf ${sample_id}_${suffix}.vcf \
     -U ALLOW_N_CIGAR_READS \
     --force_output \
     -L "../${snp_mut_intervals}"
+
+touch "ok.txt"
 
 echo "\$(date)  COMPLETED!"

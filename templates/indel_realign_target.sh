@@ -17,4 +17,6 @@ java -jar \$gatk_dir/GenomeAnalysisTK.jar \
     -known "${indel_db2}" \
     -o "${sample_id}/${sample_id}_realigner.intervals"
 
+touch "ok.txt"
+
 echo "\$(date)  COMPLETED!"

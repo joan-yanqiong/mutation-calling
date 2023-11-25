@@ -1,7 +1,6 @@
 include { STAR_ALIGN } from "../nf-modules/rna-alignment.nf"
 include { ADD_READ_GROUPS; MARK_DUPLICATES; SPLIT_CIGARS; BQSR_TABLE; APPLY_BQSR} from "../nf-modules/rna-preprocessing.nf"
-include { MUTECT_R1; ONCOTATOR; CONVERT_TO_AVINPUT_R1; ANNOVAR_R1} from "../nf-modules/rna_mutect1.nf"
-include { CONVERT_TO_MAF } from "../nf-modules/utils.nf"
+include { MUTECT_R1; ONCOTATOR; ANNOVAR_R1} from "../nf-modules/rna_mutect1.nf"
 
 workflow RNA_TUMOR_PROCESSING {
     take:
@@ -13,12 +12,13 @@ workflow RNA_TUMOR_PROCESSING {
     main:
     samples_meta = Channel.fromPath(params.sample_sheet) \
         | splitCsv(header:true) \
-        | map { row -> tuple(row.ix, row.tumor_id, file(row.tumor_fastq)) }
+        | map { row -> tuple(row.ix, row.rnaseq_condition_id, file(row.tumor_fastq)) }
 
     STAR_ALIGN(index_dir = index_dir, samples_meta)
 
-    ADD_READ_GROUPS(STAR_ALIGN.out.output, sample_type = "tumor", suffix = "Aligned.sortedByCoord.out_read_groups") \
-    | MARK_DUPLICATES
+    ADD_READ_GROUPS(STAR_ALIGN.out.output, sample_type = "tumor")
+
+    MARK_DUPLICATES(ADD_READ_GROUPS.out.output)
 
     SPLIT_CIGARS(MARK_DUPLICATES.out.output, ref_genome)
 
@@ -38,15 +38,11 @@ workflow MUTECT_ROUND1 {
     cosmic_set
 
     main:
-    MUTECT_R1(rna_tumor_processed, ref_genome, dbSNP_set, cosmic_set)
-    // CONVERT_TO_AVINPUT_R1(MUTECT_R1.out.output, suffix = "annovar_R1")
+    MUTECT_R1(rna_tumor_processed, ref_genome, dbSNP_set, cosmic_set, suffix = "mutect_R1")
     ANNOVAR_R1(MUTECT_R1.out.output, human_db = params.human_db, suffix = "annovar_R1")
-    // CONVERT_TO_MAF(ANNOVAR_R1.out, suffix = "annovar_R1")
-
-    // ONCOTATOR(MUTECT_R1.out.output)
+    ONCOTATOR(MUTECT_R1.out.output)
 
     emit:
-    // CONVERT_TO_MAF.out
-    // ONCOTATOR.out.onco_maf
+    ONCOTATOR.out.onco_maf
 
 }

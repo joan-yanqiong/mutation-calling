@@ -90,4 +90,6 @@ cat tmp_header_T.sam tmp0_T.sam > tmp_filteredbamT.sam
 # IMPORTANT: Added || true, to suppress/ignore the error.
 java -Xmx7g -jar $LIB/SamToFastq.jar I=tmp_filteredbamT.sam F=${prefix}_tmp_sequence_1.fastq F2=${prefix}_tmp_sequence_2.fastq VALIDATION_STRINGENCY=LENIENT || true
 
+touch "ok.txt"
+
 echo "$(date)   Completed"

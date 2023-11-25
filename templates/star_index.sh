@@ -25,4 +25,6 @@ STAR --runThreadN ${task.cpus} \
     --sjdbGTFfile "${gtf_path}" \
     --sjdbOverhang 100
 
+touch "ok.txt"
+
 echo "\$(date)  COMPLETED!"

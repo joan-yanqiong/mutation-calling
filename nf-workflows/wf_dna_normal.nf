@@ -13,7 +13,7 @@ workflow DNA_NORMAL_PROCESSING{
 
    normal_samples_meta = Channel.fromPath(params.sample_sheet) \
    | splitCsv(header:true) \
-   | map { row -> tuple(row.normal_id, file(row.normal_fastq)) } \
+   | map { row -> tuple(row.wes_normal_id, file(row.normal_fastq)) } \
    | unique
 
    dummy = Channel.of(1)
@@ -23,12 +23,12 @@ workflow DNA_NORMAL_PROCESSING{
 
    BWA_ALIGN(normal_samples_dummy, index_dir)
 
-   ADD_READ_GROUPS_NORMAL(BWA_ALIGN.out.mapped_sam, sample_type = "normal", suffix = "read_groups")
-   SORT_BAM(ADD_READ_GROUPS_NORMAL.out.output, sort_order = "queryname", suffix = "sorted") \
-   | MARK_DUPLICATES_NORMAL
+   ADD_READ_GROUPS_NORMAL(BWA_ALIGN.out.mapped_sam, sample_type = "normal")
+   SORT_BAM(ADD_READ_GROUPS_NORMAL.out.output, sort_order = "queryname")
+   MARK_DUPLICATES_NORMAL(SORT_BAM.out.output)
 
-   SORT_BAM_COORD(MARK_DUPLICATES_NORMAL.out.output, sort_order = "coordinate", suffix = "marked_dup_sorted_coord") \
-   | INDEX_BAM
+
+   INDEX_BAM(MARK_DUPLICATES_NORMAL.out.output)
 
    INDEL_REALIGN_TARGET(INDEX_BAM.out.output, indel_db1_set, indel_db2_set, ref_genome)
 

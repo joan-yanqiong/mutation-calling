@@ -13,3 +13,6 @@ tmp/
 *.pdf
 bin
 .devcontainer
+
+nf-logs/
+test_folder/

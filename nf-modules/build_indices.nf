@@ -30,6 +30,8 @@ process BWA_INDEX {
 
     output:
     path "${index_dir}_${ref_path.simpleName}", emit: indexed_dir
+    path "ok.txt"
+
 
     script:
     template "bwa_index.sh"
@@ -64,6 +66,7 @@ process STAR_INDEX {
 
     output:
     path "${index_dir}_${ref_path.simpleName}", emit: indexed_dir
+    path "ok.txt"
 
     script:
     template "star_index.sh"
@@ -90,6 +93,7 @@ process HISAT_INDEX {
 
     output:
     path "${index_dir}_${ref_path.simpleName}", emit: indexed_dir
+    path "ok.txt"
 
     script:
     template "hisat_index.sh"

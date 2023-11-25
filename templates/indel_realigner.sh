@@ -14,5 +14,5 @@ java -jar \$gatk_dir/GenomeAnalysisTK.jar \
     -known ${indel_db2} \
     -targetIntervals ${realigner_intervals} \
     -o ${sample_id}/${sample_id}_realigned.bam
-
+touch "ok.txt"
 echo "\$(date)  COMPLETED!"
