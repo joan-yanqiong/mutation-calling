@@ -50,8 +50,8 @@ process SORT_BAM {
 }
 
 process MARK_DUPLICATES_NORMAL {
-    label 'mem2'
-    label 'time_1h'
+    label 'mem4'
+    label 'time_2h'
 
     /*
     Summary: A better duplication marking algorithm that handles all cases including clipped and gapped alignments.
@@ -240,7 +240,7 @@ process NORMAL_BQSR_TABLE {
 
     output:
     tuple val(ix), val(sample_id), path(bam_file), path("${sample_id}/${sample_id}_recal_data.table"), emit: output
-    path "ok.txt"
+    path "${sample_id}/ok.txt"
 
     script:
     template "bqsr_table.sh"

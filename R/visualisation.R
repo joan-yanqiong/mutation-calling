@@ -5,7 +5,7 @@
 #' @importFrom VennDiagram venn.diagram
 #' @importFrom glue glue
 #' @importFrom colorjam rainbowJam
-create_venndiagram <- function(x, category.names, filename, main = "", ...) {
+create_venndiagram <- function(x, category.names, filename, main = "", main.cex = 0.3, cat.cex = 0.15, ...) {
     venn.diagram(
         x = x,
         category.names = category.names,
@@ -31,14 +31,14 @@ create_venndiagram <- function(x, category.names, filename, main = "", ...) {
         fontfamily = "sans",
 
         # Set names
-        cat.cex = 0.15,
+        cat.cex = cat.cex,
         cat.fontface = "bold",
         cat.default.pos = "outer",
         cat.fontfamily = "sans",
 
         # Title
         main.fontfamily = "sans",
-        main.cex = 0.3,
+        main.cex = main.cex,
         main.fontface = "bold"
     )
 }

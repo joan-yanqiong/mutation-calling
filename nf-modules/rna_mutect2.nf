@@ -18,7 +18,7 @@ process TUMOR_REALIGN_PREPROCESS {
 
     */
     label "time_8h"
-    label "mem_8h"
+    label "mem16"
 
     publishDir "${projectDir}/output/${params.run_name}/tumor", mode: "symlink"
     input:
@@ -45,7 +45,7 @@ process TUMOR_REALIGN_PREPROCESS {
 
 process NORMAL_REALIGN_PREPROCESS {
     label "time_8h"
-    label "mem_8h"
+    label "mem16"
     /*
     Input:
     jar_files libdir

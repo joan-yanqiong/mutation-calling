@@ -19,8 +19,8 @@ process ADD_READ_GROUPS {
 }
 
 process MARK_DUPLICATES {
-    label 'mem2'
-    label 'time_1h'
+    label 'mem4'
+    label 'time_2h'
     /*
     Summary: A better duplication marking algorithm that handles all cases including clipped and gapped alignments.
 
@@ -49,8 +49,8 @@ process MARK_DUPLICATES {
 }
 
 process SPLIT_CIGARS {
-    label 'mem2'
-    label 'time_1h'
+    label 'mem8'
+    label 'time_4h'
     /*
     Input:
     ix, sample_id, dir: information from sample sheet
@@ -74,7 +74,7 @@ process SPLIT_CIGARS {
     output:
     tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_split.bam"),
     path("${sample_id}/${sample_id}_split.bai"), emit: output
-    path "ok.txt"
+    path "${sample_id}/ok.txt"
 
     script:
     template "split_cigars.sh"

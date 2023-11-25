@@ -71,6 +71,7 @@ mkdir -p "${project_dir}/output/${run_name}/mutations_prefiltered"
 # Start the pipeline
 echo "$(date)   Start the pipeline..."
 ${nf_exec} run ${project_dir} -with-report -with-trace \
+    -resume "521efc17-89a1-463f-a710-308c1ab87dce" \
     -profile ${nf_profile} \
     -w $work_dir \
     --sample_sheet ${sample_sheet} \

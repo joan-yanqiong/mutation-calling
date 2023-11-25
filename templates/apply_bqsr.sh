@@ -9,7 +9,7 @@ mkdir -p ${sample_id}
 cd ${sample_id}
 
 echo "\$(date)  Apply base quality score recalibration"
-gatk ApplyBQSR \
+gatk ApplyBQSR --java-options -Xmx4g \
     -R "../${ref_path}" \
     -I "../${bam_file}" \
     --bqsr-recal-file "../${recal_data_table}" \
