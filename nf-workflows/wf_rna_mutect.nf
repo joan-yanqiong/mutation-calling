@@ -15,10 +15,13 @@ workflow RNA_MUTECT {
 
   pairs_info = Channel.fromPath(params.sample_sheet) \
   | splitCsv(header:true) \
-  | map { row -> tuple(row.ix, row.rna_seq_condition_id, row.wes_normal_id, row.normal_tumor_id) }
+  | map { row -> tuple(row.ix, row.rnaseq_condition_id, row.wes_normal_id, row.normal_tumor_id) }
   normal_pairs_info = Channel.fromPath(params.sample_sheet) \
   | splitCsv(header:true) \
   | map { row -> tuple(row.wes_normal_id, row.ix, row.wes_normal_id) }
+
+  pairs_info.view()
+  // normal_pairs_info.view()
 
   dna_normal_processed_adapted = normal_pairs_info.combine(dna_normal_processed, by:0).map( it -> it.subList(1, it.size()))
 
@@ -86,10 +89,10 @@ workflow RNA_MUTECT {
     FILTERING.out.output,
     human_db = params.human_db, suffix = "annovar_R2")
 
-  // FUNCOTATOR(
-  //   FILTERING.out.output,
-  //   data_source_path = params.func_data_path,
-  //   suffix = "R2"
-  //   ref_genome = ref_genome,
-  // )
+  FUNCOTATOR(
+    FILTERING.out.output,
+    data_source_path = params.func_data_path,
+    suffix = "R2",
+    ref_genome = ref_genome,
+  )
 }
