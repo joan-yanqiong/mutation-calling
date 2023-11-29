@@ -6,7 +6,7 @@ echo "\$(date)  Creating directory for output..."
 mkdir -p ${sample_id}
 
 echo "\$(date)  Realigning around indels..."
-java -jar \$gatk_dir/GenomeAnalysisTK.jar \
+java -Xmx4g -jar \$gatk_dir/GenomeAnalysisTK.jar \
     -T IndelRealigner \
     -R ${ref_path} \
     -I ${marked_dup_bam} \

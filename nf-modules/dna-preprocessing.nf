@@ -2,7 +2,7 @@ process ADD_READ_GROUPS_NORMAL {
     /* ADD READ GROUPS
     */
     label 'mem2'
-    label 'time_1h'
+    label 'time_30m'
 
     publishDir "${projectDir}/output/${params.run_name}/normal", mode: "symlink"
 
@@ -84,7 +84,7 @@ process MARK_DUPLICATES_NORMAL {
 
 process SORT_BAM_COORD {
     label "time_1h"
-    label "mem6"
+    label "mem4"
     /*
     Summary: Sorts the input SAM or BAM file by queryname
 
@@ -113,8 +113,8 @@ process SORT_BAM_COORD {
 }
 
 process INDEX_BAM {
-    label "time_1h"
-    label "mem6"
+    label "time_10m"
+    label "mem1"
         /*
     Summary: Indexes a BAM file using samtools
 
@@ -131,10 +131,10 @@ process INDEX_BAM {
     publishDir "${projectDir}/output/${params.run_name}/normal", mode: "symlink"
 
     input:
-    tuple val(ix), val(sample_id), path(sorted_bam)
+    tuple val(ix), val(sample_id), path(bam_file)
 
     output:
-    tuple val(ix), val(sample_id), path(sorted_bam), path("${sample_id}/${sample_id}_marked_dup_sorted_coord.bam.bai"), emit: output
+    tuple val(ix), val(sample_id), path(bam_file), path("${sample_id}/${bam_file.name}.bai"), emit: output
     path "ok.txt"
 
     script:
@@ -142,8 +142,8 @@ process INDEX_BAM {
 }
 
 process INDEL_REALIGN_TARGET {
-    label "time_8h"
-    label "mem8"
+    label "time_30m"
+    label "mem6"
     /*
     Summary:
     1. Sort by coord,
@@ -181,8 +181,8 @@ process INDEL_REALIGN_TARGET {
 }
 
 process INDEL_REALIGNER {
-    label "time_8h"
-    label "mem8"
+    label "time_2h"
+    label "mem4"
     /*
     Summary: Realign indels using targets from previous step
 
@@ -215,8 +215,8 @@ process INDEL_REALIGNER {
 }
 
 process NORMAL_BQSR_TABLE {
-    label "time_8h"
-    label "mem8"
+    label "time_1h"
+    label "mem2"
     /*
     Summary: Generates recalibration table for Base Quality Score Recalibration (BQSR)
 
@@ -240,15 +240,15 @@ process NORMAL_BQSR_TABLE {
 
     output:
     tuple val(ix), val(sample_id), path(bam_file), path("${sample_id}/${sample_id}_recal_data.table"), emit: output
-    path "${sample_id}/ok.txt"
+    path "ok.txt"
 
     script:
     template "bqsr_table.sh"
 }
 
 process NORMAL_APPLY_BQSR {
-    label "time_8h"
-    label "mem8"
+    label "time_1h"
+    label "mem1"
     /*
     Summary: Apply base quality score recalibration
 

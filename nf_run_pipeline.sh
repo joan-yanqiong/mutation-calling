@@ -30,6 +30,7 @@ run_name="test_set"
 data_dir="${project_dir}/001_data/"
 
 sample_sheet="${project_dir}/000_misc/test_set.csv"
+# min_alt_counts=5
 
 # HELPER FILES (REFERENCES)
 ref_genome="${data_dir}/reference_genome/Homo_sapiens_assembly19.fasta"

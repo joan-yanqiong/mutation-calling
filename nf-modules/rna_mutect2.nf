@@ -17,8 +17,8 @@ process TUMOR_REALIGN_PREPROCESS {
 
 
     */
-    label "time_8h"
-    label "mem16"
+    label "time_30m"
+    label "mem2"
 
     publishDir "${projectDir}/output/${params.run_name}/tumor", mode: "symlink"
     input:
@@ -44,8 +44,8 @@ process TUMOR_REALIGN_PREPROCESS {
 
 
 process NORMAL_REALIGN_PREPROCESS {
-    label "time_8h"
-    label "mem16"
+    label "time_30m"
+    label "mem1"
     /*
     Input:
     jar_files libdir
@@ -85,7 +85,7 @@ process NORMAL_REALIGN_PREPROCESS {
 
 process TUMOR_HISAT_ALIGN {
     label "mem6"
-    label "time_1h"
+    label "time_10m"
     publishDir "${projectDir}/output/${params.run_name}/tumor", mode: "symlink"
 
     /*
@@ -115,7 +115,7 @@ process TUMOR_HISAT_ALIGN {
 
 process PAIR_HISAT_ALIGN {
     label "mem6"
-    label "time_1h"
+    label "time_10m"
     publishDir "${projectDir}/output/${params.run_name}/normal", mode: "symlink"
 
     /*
@@ -145,8 +145,8 @@ process PAIR_HISAT_ALIGN {
 
 
 process SORT_BAM_COORD_HIS_NORMAL{
-    label "time_1h"
-    label "mem6"
+    label "time_15m"
+    label "mem4"
     /*
     Summary: Sorts the input SAM or BAM file by queryname
 
@@ -175,8 +175,8 @@ process SORT_BAM_COORD_HIS_NORMAL{
 }
 
 process SORT_BAM_COORD_HIS_TUMOR{
-    label "time_1h"
-    label "mem6"
+    label "time_15m"
+    label "mem4"
 
     /*
     Summary: Sorts the input SAM or BAM file by queryname
@@ -206,8 +206,8 @@ process SORT_BAM_COORD_HIS_TUMOR{
 }
 
 process INDEX_BAM_HIS_NORMAL {
-    label "time_30m"
-    label "mem2"
+    label "time_10m"
+    label "mem1"
         /*
     Summary: Indexes a BAM file using samtools
 
@@ -227,7 +227,7 @@ process INDEX_BAM_HIS_NORMAL {
     tuple val(ix), val(sample_id), path(bam_file)
 
     output:
-    tuple val(ix), val(sample_id), path(bam_file), path("${sample_id}/${bam_file}.bai"), emit: output
+    tuple val(ix), val(sample_id), path(bam_file), path("${sample_id}/${bam_file.name}.bai"), emit: output
     path "ok.txt"
 
     script:
@@ -236,8 +236,8 @@ process INDEX_BAM_HIS_NORMAL {
 
 
 process INDEX_BAM_HIS_TUMOR {
-    label "time_30m"
-    label "mem2"
+    label "time_10m"
+    label "mem1"
     /*
     Summary: Indexes a BAM file using samtools
 
@@ -257,15 +257,15 @@ process INDEX_BAM_HIS_TUMOR {
     tuple val(ix), val(sample_id), path(bam_file)
 
     output:
-    tuple val(ix), val(sample_id), path(bam_file), path("${sample_id}/${bam_file}.bai"), emit: output
+    tuple val(ix), val(sample_id), path(bam_file), path("${sample_id}/${bam_file.name}.bai"), emit: output
     path "ok.txt"
 
     script:
     template "index_bam.sh"
 }
 process MUTECT_R2 {
-    label "time_8h"
-    label "mem40"
+    label "time_1h"
+    label "mem12"
     publishDir "${projectDir}/output/${params.run_name}/tumor", mode: "symlink"
 
     /*
@@ -298,15 +298,15 @@ process MUTECT_R2 {
     output:
     path "${sample_id}/${sample_id}_${suffix}_call_stats.txt"
     tuple val(ix), val(sample_id), path("${sample_id}/${sample_id}_${suffix}.vcf"), path("${sample_id}/${sample_id}_${suffix}.vcf.idx"), emit: output
-    path "ok.txt"
+    path "${sample_id}/ok.txt"
 
     script:
     template "mutect_R2.sh"
 }
 
 process FILTERING {
-    label "time_30m"
-    label "mem2"
+    label "time_10m"
+    label "mem1"
     publishDir "${projectDir}/output/${params.run_name}/tumor", mode: "symlink"
     /*
     SUMMARY:
@@ -347,7 +347,7 @@ process FILTERING {
     path("${sample_id}/mutations_filtered/${sample_id}.darned.recode.vcf")
     path("${sample_id}/mutations_filtered/${sample_id}.radar.recode.vcf")
     path("${sample_id}/mutations_filtered/${sample_id}.a_pseudo_genes.recode.vcf")
-    tuple val(ix), val(sample_id), path("${sample_id}/mutations_filtered/${sample_id}.b_pseudo_genes.recode.vcf"), emit: output
+    tuple val(ix), val(sample_id), path("${sample_id}/mutations_filtered/${sample_id}.b_pseudo_genes.recode.vcf"), path(mutect_vcf_idx), emit: output
     path "${sample_id}/mutations_filtered/ok.txt"
 
     script:
@@ -355,12 +355,12 @@ process FILTERING {
 }
 
 process ANNOVAR_R2 {
-    label "time_30m"
-    label "mem2"
-    publishDir "${projectDir}/output/${params.run_name}/tumor/", mode: "copy"
+    label "time_15m"
+    label "mem1"
+    publishDir "${projectDir}/output/${params.run_name}/mutations_prefiltered/", mode: "copy"
 
     input:
-    tuple val(ix), val(sample_id), path(mutct_vcf), path(mutect_vcf_index)
+    tuple val(ix), val(sample_id), path(mutect_vcf), path(mutect_vcf_index)
     path human_db
     val suffix
 
@@ -375,8 +375,8 @@ process ANNOVAR_R2 {
 }
 
 process FUNCOTATOR {
-    label "mem16"
-    label "time_30m"
+    label "mem4"
+    label "time_15m"
     publishDir "${projectDir}/output/${params.run_name}/mutations_prefiltered", mode: "copy"
 
     input:

@@ -72,6 +72,11 @@ workflow {
         dbSNP_set = dbSNP_set
     )
 
+    // MUTECT_ROUND1.out.view()
+    // RNA_TUMOR_PROCESSING.out.view()
+    // DNA_NORMAL_PROCESSING.out.view()
+
+
     // // ---- RNA-MUTECT ---- //
         RNA_MUTECT(
         mutect_round1 = MUTECT_ROUND1.out,

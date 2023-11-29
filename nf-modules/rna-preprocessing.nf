@@ -1,6 +1,6 @@
 process ADD_READ_GROUPS {
     label 'mem2'
-    label 'time_1h'
+    label 'time_30m'
     /* ADD READ GROUPS
     */
 
@@ -20,7 +20,7 @@ process ADD_READ_GROUPS {
 
 process MARK_DUPLICATES {
     label 'mem4'
-    label 'time_2h'
+    label 'time_1h'
     /*
     Summary: A better duplication marking algorithm that handles all cases including clipped and gapped alignments.
 
@@ -49,8 +49,8 @@ process MARK_DUPLICATES {
 }
 
 process SPLIT_CIGARS {
-    label 'mem8'
-    label 'time_4h'
+    label 'mem16'
+    label 'time_6h'
     /*
     Input:
     ix, sample_id, dir: information from sample sheet
@@ -82,8 +82,8 @@ process SPLIT_CIGARS {
 
 
 process BQSR_TABLE {
-    label "time_8h"
-    label "mem8"
+    label "time_30m"
+    label "mem1"
     /*
     Summary: Generates recalibration table for Base Quality Score Recalibration (BQSR)
 
@@ -107,15 +107,15 @@ process BQSR_TABLE {
 
     output:
     tuple val(ix), val(sample_id), path(bam_file), path("${sample_id}/${sample_id}_recal_data.table"), emit: output
-    path "${sample_id}/ok.txt"
+    path "ok.txt"
 
     script:
     template "bqsr_table.sh"
 }
 
 process APPLY_BQSR {
-    label "time_8h"
-    label "mem8"
+    label "time_30m"
+    label "mem1"
     /*
     Summary: Apply base quality score recalibration
 

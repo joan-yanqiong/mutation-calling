@@ -77,7 +77,7 @@ echo "$(date)   Extracting paired reads from BAM..."
 samtools view -L snp_mutations.intervals.bed $BAM | cut -f1 > IDs_all.txt
 if [ "$?" -ne 0 ]; then echo "Extracting read IDs failed"; exit 1; fi
 
-java -Xmx7g -jar $LIB/FilterSamReads.jar I=$BAM O=tmp_bam.bam READ_LIST_FILE=IDs_all.txt FILTER=includeReadList WRITE_READS_FILES=false VALIDATION_STRINGENCY=LENIENT
+java -Xmx2g -jar $LIB/FilterSamReads.jar I=$BAM O=tmp_bam.bam READ_LIST_FILE=IDs_all.txt FILTER=includeReadList WRITE_READS_FILES=false VALIDATION_STRINGENCY=LENIENT
 if [ "$?" -ne 0 ]; then echo "Generating BAM based on read list failed"; exit 1; fi
 
 echo "$(date)   Convert BAM to FASTQ..."
@@ -88,7 +88,7 @@ samtools view tmp_bam.bam | awk '$2 < 2040 { print }' > tmp0_T.sam
 cat tmp_header_T.sam tmp0_T.sam > tmp_filteredbamT.sam
 
 # IMPORTANT: Added || true, to suppress/ignore the error.
-java -Xmx7g -jar $LIB/SamToFastq.jar I=tmp_filteredbamT.sam F=${prefix}_tmp_sequence_1.fastq F2=${prefix}_tmp_sequence_2.fastq VALIDATION_STRINGENCY=LENIENT || true
+java -Xmx2g -jar $LIB/SamToFastq.jar I=tmp_filteredbamT.sam F=${prefix}_tmp_sequence_1.fastq F2=${prefix}_tmp_sequence_2.fastq VALIDATION_STRINGENCY=LENIENT || true
 
 touch "ok.txt"
 

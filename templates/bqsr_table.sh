@@ -13,4 +13,6 @@ gatk BaseRecalibrator --java-options -Xmx4g \
     --known-sites "${dbSNP_vcf}" \
     -O "${sample_id}/${sample_id}_recal_data.table"
 
+touch "ok.txt"
+
 echo "\$(date)  COMPLETED!"

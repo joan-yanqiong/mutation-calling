@@ -8,7 +8,7 @@ echo "\$(date)  Create output folder..."
 mkdir -p "${sample_id}"
 
 echo "\$(date)  Create targets for realigning around indels..."
-java -jar \$gatk_dir/GenomeAnalysisTK.jar \
+java -Xmx6g -jar \$gatk_dir/GenomeAnalysisTK.jar \
     -nt ${task.cpus} \
     -T RealignerTargetCreator \
     -R ${ref_path} \

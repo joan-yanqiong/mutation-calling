@@ -19,7 +19,7 @@ workflow DNA_NORMAL_PROCESSING{
    dummy = Channel.of(1)
    normal_samples_dummy =  dummy.combine(normal_samples_meta)
 
-   normal_samples_dummy.view()
+   // normal_samples_dummy.view()
 
    BWA_ALIGN(normal_samples_dummy, index_dir)
 
@@ -27,8 +27,9 @@ workflow DNA_NORMAL_PROCESSING{
    SORT_BAM(ADD_READ_GROUPS_NORMAL.out.output, sort_order = "queryname")
    MARK_DUPLICATES_NORMAL(SORT_BAM.out.output)
 
+   SORT_BAM_COORD(MARK_DUPLICATES_NORMAL.out.output, sort_order = "coordinate")
 
-   INDEX_BAM(MARK_DUPLICATES_NORMAL.out.output)
+   INDEX_BAM(SORT_BAM_COORD.out.output)
 
    INDEL_REALIGN_TARGET(INDEX_BAM.out.output, indel_db1_set, indel_db2_set, ref_genome)
 

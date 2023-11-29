@@ -1,6 +1,6 @@
 process MUTECT_R1 {
-    label "time_8h"
-    label "mem40"
+    label "time_2h"
+    label "mem12"
     /*
     Run MuTect
 
@@ -31,8 +31,8 @@ process MUTECT_R1 {
 }
 
 process ONCOTATOR {
-    label "time_30m"
-    label "mem16"
+    label "time_10m"
+    label "mem1"
     /*
     Summary: Annotate mutations obtained with Mutect
 
@@ -64,12 +64,12 @@ process ONCOTATOR {
 }
 
 process ANNOVAR_R1 {
-    label "time_30m"
-    label "mem2"
+    label "time_10m"
+    label "mem1"
     publishDir "${projectDir}/${params.run_name}/output/tumor/", mode: "copy"
 
     input:
-    tuple val(ix), val(sample_id), path(mutct_vcf), path(mutect_vcf_index)
+    tuple val(ix), val(sample_id), path(mutect_vcf), path(mutect_vcf_index)
     path human_db
     val suffix
 
