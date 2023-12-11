@@ -12,7 +12,7 @@ workflow RNA_TUMOR_PROCESSING {
     main:
     samples_meta = Channel.fromPath(params.sample_sheet) \
         | splitCsv(header:true) \
-        | map { row -> tuple(row.ix, row.rnaseq_condition_id, file(row.tumor_fastq)) }
+        | map { row -> tuple(row.ix, row.rnaseq_tumor_id, file(row.rnaseq_tumor_fastq)) }
 
     STAR_ALIGN(index_dir = index_dir, samples_meta)
 

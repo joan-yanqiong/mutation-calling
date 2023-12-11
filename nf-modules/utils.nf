@@ -13,7 +13,7 @@ process HISAT_ALIGN_TUMOR_BAM {
     bam_file: BAM file containing reads
 
     */
-    publishDir "${projectDir}/${params.run_name}/output/tumor", mode: "symlink"
+    publishDir "${projectDir}/${params.run_name}/output/tumor", mode: "copy"
 
     input:
     tuple val(ix), val(sample_id), path(sam_file)
@@ -40,7 +40,7 @@ process HISAT_ALIGN_PAIR_BAM {
     bam_file: BAM file containing reads
 
     */
-    publishDir "${projectDir}/${params.run_name}/output/normal", mode: "symlink"
+    publishDir "${projectDir}/${params.run_name}/output/normal", mode: "copy"
 
     input:
     tuple val(ix), val(sample_id), path(sam_file)
@@ -67,7 +67,7 @@ process SAM_TO_BAM {
     bam_file: BAM file containing reads
 
     */
-    publishDir "${projectDir}/${params.run_name}/output/normal", mode: "symlink"
+    publishDir "${projectDir}/${params.run_name}/output/normal", mode: "copy"
 
     input:
     tuple val(ix), val(sample_id), path(sam_file)
@@ -82,7 +82,7 @@ process SAM_TO_BAM {
 
 // process CONVERT_TO_MAF {
 //     label "very_short_process"
-//     publishDir "${projectDir}/${params.run_name}/output/tumor", mode: "symlink"
+//     publishDir "${projectDir}/${params.run_name}/output/tumor", mode: "copy"
 
 //     input:
 //     tuple val(ix), val(sample_id), path(input_file)

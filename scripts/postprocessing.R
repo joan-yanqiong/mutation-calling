@@ -9,7 +9,7 @@ if (sum(has_script_filepath)) {
     setwd(dirname(unlist(strsplit(cmd_args[has_script_filepath], "=")))[2])
 }
 
-renv::load(here::here())
+# renv::load(here::here())
 
 
 # Load libraries
@@ -32,7 +32,7 @@ if (!interactive()) {
     # Provide arguments here for local runs
     args <- list()
     args$log_level <- 5
-    args$output_dir <- glue("{here::here()}/output/mutations_postprocessed")
+    args$output_dir <- glue("{here::here()}/output/test_set/mutations_postprocessed")
     args$input_file <- glue("{here::here()}/output/tumor/SRR5088829/SRR5088829_second_mutect.annovar.hg19_multianno.txt")
 }
 
@@ -46,14 +46,14 @@ log_info(ifelse(interactive(),
 log_info("Create output directory...")
 create_dir(args$output_dir)
 
-annot_mut_files <- list.files(glue("{here::here()}/output/mutations"), pattern = "hg19_multianno.txt", full.names = TRUE)
+annot_mut_files <- list.files(glue("{here::here()}/output/test_set/mutations_prefiltered"), pattern = "hg19_multianno.txt", full.names = TRUE, recursive = TRUE)
 
 for (i in annot_mut_files) {
     log_info(glue("Current file: {i}"))
     args$input_file <- i
 
     log_info("Extract sample id...")
-    sample_id <- str_split(get_name(args$input_file), "\\.", simplify = TRUE)[1]
+    sample_id <- str_split(get_name(args$input_file), "_", simplify = TRUE)[1]
     log_info(glue("Current sample id: {sample_id}"))
 
     log_info("Load mutations...")

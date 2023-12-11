@@ -18,7 +18,7 @@ process STAR_ALIGN {
     [p. 7-8]
 
     */
-    publishDir "${projectDir}/${params.run_name}/output/tumor", mode: "symlink"
+    publishDir "${projectDir}/${params.run_name}/output/tumor", mode: "copy"
 
     input:
     path index_dir

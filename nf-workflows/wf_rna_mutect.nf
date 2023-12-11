@@ -15,7 +15,7 @@ workflow RNA_MUTECT {
 
   pairs_info = Channel.fromPath(params.sample_sheet) \
   | splitCsv(header:true) \
-  | map { row -> tuple(row.ix, row.rnaseq_condition_id, row.wes_normal_id, row.normal_tumor_id) }
+  | map { row -> tuple(row.ix, row.rnaseq_tumor_id, row.wes_normal_id, row.normal_tumor_id) }
   normal_pairs_info = Channel.fromPath(params.sample_sheet) \
   | splitCsv(header:true) \
   | map { row -> tuple(row.wes_normal_id, row.ix, row.wes_normal_id) }

@@ -11,7 +11,7 @@
 #SBATCH --output=slurm_out/%x_%j.out
 #SBATCH --error=slurm_out/%x_%j.out
 
-module load java
+module load java/18
 
 # H4H
 base_dir="/cluster/projects/gaitigroup/Users/Joan/"
@@ -25,7 +25,7 @@ mkdir -p "${work_dir}"
 echo "$(date)   Setup paths..."
 project_dir="${base_dir}/h4h-mutation-calling"
 outdir="${project_dir}/nf-logs"
-run_name="test_set"
+run_name="test_set_rerun"
 
 data_dir="${project_dir}/001_data/"
 
@@ -68,11 +68,11 @@ mkdir -p "${project_dir}/output/${run_name}/tumor"
 mkdir -p "${project_dir}/output/${run_name}/mutations_prefiltered"
 
     # -resume "665f4183-3717-4b49-9089-a99ba7b10b0f" \
+    # -resume "521efc17-89a1-463f-a710-308c1ab87dce" \
 
 # Start the pipeline
 echo "$(date)   Start the pipeline..."
 ${nf_exec} run ${project_dir} -with-report -with-trace \
-    -resume "521efc17-89a1-463f-a710-308c1ab87dce" \
     -profile ${nf_profile} \
     -w $work_dir \
     --sample_sheet ${sample_sheet} \

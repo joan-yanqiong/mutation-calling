@@ -4,7 +4,7 @@ process ADD_READ_GROUPS {
     /* ADD READ GROUPS
     */
 
-    publishDir "${projectDir}/output/${params.run_name}/tumor", mode: "symlink"
+    publishDir "${projectDir}/output/${params.run_name}/tumor", mode: "copy"
 
     input:
     tuple val(ix), val(sample_id), path(mapped_bam)
@@ -34,7 +34,7 @@ process MARK_DUPLICATES {
 
     Ref: https://gatk.broadinstitute.org/hc/en-us/articles/360037052812-MarkDuplicates-Picard-
     */
-    publishDir "${projectDir}/output/${params.run_name}/tumor", mode: "symlink"
+    publishDir "${projectDir}/output/${params.run_name}/tumor", mode: "copy"
 
     input:
     tuple val(ix), val(sample_id), path(read_groups_file)
@@ -65,7 +65,7 @@ process SPLIT_CIGARS {
     Ref: https://gatk.broadinstitute.org/hc/en-us/articles/360036858811-SplitNCigarReads
 
     */
-    publishDir "${projectDir}/output/${params.run_name}/tumor", mode: "symlink"
+    publishDir "${projectDir}/output/${params.run_name}/tumor", mode: "copy"
 
     input:
     tuple val(ix), val(sample_id), path(marked_dup_bam)
@@ -98,7 +98,7 @@ process BQSR_TABLE {
 
     Ref: https://gatk.broadinstitute.org/hc/en-us/articles/360036898312-BaseRecalibrator
     */
-    publishDir "${projectDir}/output/${params.run_name}/tumor", mode: "symlink"
+    publishDir "${projectDir}/output/${params.run_name}/tumor", mode: "copy"
 
     input:
     tuple val(ix), val(sample_id), path(bam_file), path(bai_file)
@@ -130,7 +130,7 @@ process APPLY_BQSR {
     Ref: https://gatk.broadinstitute.org/hc/en-us/articles/360037055712-ApplyBQSR
 
     */
-    publishDir "${projectDir}/output/${params.run_name}/tumor", mode: "symlink"
+    publishDir "${projectDir}/output/${params.run_name}/tumor", mode: "copy"
 
     input:
     tuple val(ix), val(sample_id), path(bam_file), path(recal_data_table)

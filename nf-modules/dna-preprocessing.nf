@@ -4,7 +4,7 @@ process ADD_READ_GROUPS_NORMAL {
     label 'mem2'
     label 'time_30m'
 
-    publishDir "${projectDir}/output/${params.run_name}/normal", mode: "symlink"
+    publishDir "${projectDir}/output/${params.run_name}/normal", mode: "copy"
 
     input:
     tuple val(ix), val(sample_id), path(mapped_bam)
@@ -35,7 +35,7 @@ process SORT_BAM {
 
     Ref: https://gatk.broadinstitute.org/hc/en-us/articles/4418062801691-SortSam-Picard-
     */
-    publishDir "${projectDir}/output/${params.run_name}/normal", mode: "symlink"
+    publishDir "${projectDir}/output/${params.run_name}/normal", mode: "copy"
 
     input:
     tuple val(ix), val(sample_id), path(read_groups_sam)
@@ -67,7 +67,7 @@ process MARK_DUPLICATES_NORMAL {
 
     Ref: https://gatk.broadinstitute.org/hc/en-us/articles/360037052812-MarkDuplicates-Picard-
     */
-    publishDir "${projectDir}/output/${params.run_name}/normal", mode: "symlink"
+    publishDir "${projectDir}/output/${params.run_name}/normal", mode: "copy"
 
     input:
     tuple val(ix), val(sample_id), path(read_groups_file)
@@ -98,7 +98,7 @@ process SORT_BAM_COORD {
 
     Ref: https://gatk.broadinstitute.org/hc/en-us/articles/4418062801691-SortSam-Picard-
     */
-    publishDir "${projectDir}/output/${params.run_name}/normal", mode: "symlink"
+    publishDir "${projectDir}/output/${params.run_name}/normal", mode: "copy"
 
     input:
     tuple val(ix), val(sample_id), path(read_groups_sam)
@@ -128,7 +128,7 @@ process INDEX_BAM {
 
     Ref: http://www.htslib.org/doc/samtools-index.html
     */
-    publishDir "${projectDir}/output/${params.run_name}/normal", mode: "symlink"
+    publishDir "${projectDir}/output/${params.run_name}/normal", mode: "copy"
 
     input:
     tuple val(ix), val(sample_id), path(bam_file)
@@ -163,7 +163,7 @@ process INDEL_REALIGN_TARGET {
     https://gatk.broadinstitute.org/hc/en-us/articles/360036510732-SortSam-Picard-
     http://www.htslib.org/doc/samtools-index.html
     */
-    publishDir "${projectDir}/output/${params.run_name}/normal", mode: "symlink"
+    publishDir "${projectDir}/output/${params.run_name}/normal", mode: "copy"
 
     input:
     tuple val(ix), val(sample_id), path(marked_dup_bam), path(marked_dup_bam_bai)
@@ -196,7 +196,7 @@ process INDEL_REALIGNER {
 
     Ref: https://github.com/broadinstitute/gatk-docs/blob/master/gatk3-tutorials/(howto)_Perform_local_realignment_around_indels.md#section2
     */
-    publishDir "${projectDir}/output/${params.run_name}/normal", mode: "symlink"
+    publishDir "${projectDir}/output/${params.run_name}/normal", mode: "copy"
 
     input:
     tuple val(ix), val(sample_id), path(marked_dup_bam), path(marked_dup_bai), path(realigner_intervals)
@@ -231,7 +231,7 @@ process NORMAL_BQSR_TABLE {
 
     Ref: https://gatk.broadinstitute.org/hc/en-us/articles/360036898312-BaseRecalibrator
     */
-    publishDir "${projectDir}/output/${params.run_name}/normal", mode: "symlink"
+    publishDir "${projectDir}/output/${params.run_name}/normal", mode: "copy"
 
     input:
     tuple val(ix), val(sample_id), path(bam_file), path(bai_file)
@@ -262,7 +262,7 @@ process NORMAL_APPLY_BQSR {
 
     Ref: https://gatk.broadinstitute.org/hc/en-us/articles/360037055712-ApplyBQSR
     */
-    publishDir "${projectDir}/output/${params.run_name}/normal", mode: "symlink"
+    publishDir "${projectDir}/output/${params.run_name}/normal", mode: "copy"
 
     input:
     tuple val(ix), val(sample_id), path(bam_file), path(recal_data_table)

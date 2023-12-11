@@ -13,7 +13,7 @@ workflow DNA_NORMAL_PROCESSING{
 
    normal_samples_meta = Channel.fromPath(params.sample_sheet) \
    | splitCsv(header:true) \
-   | map { row -> tuple(row.wes_normal_id, file(row.normal_fastq)) } \
+   | map { row -> tuple(row.wes_normal_id, file(row.wes_normal_fastq)) } \
    | unique
 
    dummy = Channel.of(1)

@@ -12,7 +12,7 @@ process MUTECT_R1 {
 
     */
 
-    publishDir "${projectDir}/${params.run_name}/output/tumor", mode: "symlink"
+    publishDir "${projectDir}/${params.run_name}/output/tumor", mode: "copy"
 
     input:
     tuple val(ix), val(sample_id), path(recal_bam), path(recal_bai)
@@ -48,7 +48,7 @@ process ONCOTATOR {
     Ref:
     */
 
-    publishDir "${projectDir}/${params.run_name}/output/tumor", mode: "symlink"
+    publishDir "${projectDir}/${params.run_name}/output/tumor", mode: "copy"
 
     input:
     tuple val(ix),val(sample_id), path(mutect_vcf), path(mutect_vcf_index)

@@ -14,7 +14,7 @@ process BWA_ALIGN {
 
     Ref: https://bio-bwa.sourceforge.net/bwa.shtml
     */
-    publishDir "${projectDir}/${params.run_name}/output/normal", mode: "symlink"
+    publishDir "${projectDir}/${params.run_name}/output/normal", mode: "copy"
 
     input:
     tuple val(ix), val(sample_id), path(dir)

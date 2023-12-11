@@ -39,11 +39,11 @@ create_dir(args$output_dir)
 # Load additional libraries
 sample_sheet <- read.csv(glue("{here::here()}/000_misc_local/sample_sheet.csv"))
 
-rnaseq_mut <- list.files(glue("{here::here()}/output/mutations_postprocessed"))
+rnaseq_mut <- list.files(glue("{here::here()}/output/test_set/mutations_postprocessed"))
 rnaseq_samples <- str_remove(rnaseq_mut, "_mutations.txt")
 
-wes_mut <- list.files("/Users/joankant/Desktop/gaitigroup/Users/Joan/wes-mutation-calling/output/wes_paired/mutations_postprocessed")
-wes_samples <- str_remove(wes_mut, "_mutations.txt")
+wes_mut <- list.files("/Users/joankant/Desktop/gaitigroup/Users/Joan/wes-mutation-calling/output/wes_paired/mutations_gene_filtered")
+wes_samples <- str_remove(wes_mut, "_mutations_final.txt")
 
 avail_mutations <- sample_sheet %>% filter(rnaseq_condition_id %in% rnaseq_samples, wes_condition_id %in% wes_samples)
 
@@ -51,11 +51,11 @@ for (i in seq_len(nrow(avail_mutations))) {
     current_rna_sample <- avail_mutations$rnaseq_condition_id[i]
     current_wes_sample <- avail_mutations$wes_condition_id[i]
 
-    current_rna_mut <- read.table(glue("{here::here()}/output/mutations_postprocessed/{current_rna_sample}_mutations.txt"), sep = "\t", header = TRUE) %>%
+    current_rna_mut <- read.table(glue("{here::here()}/output/test_set/mutations_postprocessed/{current_rna_sample}_mutations.txt"), sep = "\t", header = TRUE) %>%
         mutate(mutation_in_rna = 1) %>%
         select(Chr, Start, End, Ref, Alt, mutation_in_rna)
 
-    current_wes_mut <- read.table(glue("/Users/joankant/Desktop/gaitigroup/Users/Joan/wes-mutation-calling/output/wes_paired/mutations_postprocessed/{current_wes_sample}_mutations.txt"), sep = "\t", header = TRUE) %>%
+    current_wes_mut <- read.table(glue("/Users/joankant/Desktop/gaitigroup/Users/Joan/wes-mutation-calling/output/wes_paired/mutations_gene_filtered/{current_wes_sample}_mutations_final.txt"), sep = "\t", header = TRUE) %>%
         mutate(mutation_in_wes = 1) %>%
         select(Chr, Start, End, Ref, Alt, mutation_in_wes)
 
@@ -72,8 +72,3 @@ for (i in seq_len(nrow(avail_mutations))) {
         main = glue("RNA_ID={current_rna_sample} vs WES_ID={current_wes_sample} \n(cond={avail_mutations$condition[i]})"), main.cex = 0.15
     )
 }
-
-
-
-# venneuler::venneuler(list(rnaseq_mutations, wes_mutations))
-```

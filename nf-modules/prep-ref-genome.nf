@@ -13,7 +13,7 @@ process CREATE_FASTA_DICT {
     https://gatk.broadinstitute.org/hc/en-us/articles/360037422891-CreateSequenceDictionary-Picard-
 
     */
-    publishDir "${projectDir}/data/reference_genome", mode: "symlink"
+    publishDir "${projectDir}/data/reference_genome", mode: "copy"
 
     input:
     path ref_genome
@@ -38,7 +38,7 @@ process CREATE_FASTA_INDEX {
     Ref:
     https://gatk.broadinstitute.org/hc/en-us/articles/360035531652-FASTA-Reference-genome-format
     */
-    publishDir "${projectDir}/data/reference_genome", mode: "symlink"
+    publishDir "${projectDir}/data/reference_genome", mode: "copy"
 
     input:
     path ref_genome

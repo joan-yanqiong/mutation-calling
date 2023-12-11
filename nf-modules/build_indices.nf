@@ -22,7 +22,7 @@ process BWA_INDEX {
     Ref: https://bio-bwa.sourceforge.net/bwa.shtml
     */
 
-    publishDir "${projectDir}/data/indices", mode: "symlink"
+    publishDir "${projectDir}/data/indices", mode: "copy"
 
     input:
     val index_dir
@@ -57,7 +57,7 @@ process STAR_INDEX {
     https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf
     [p. 5]
     */
-    publishDir "${projectDir}/data/indices", mode: "symlink"
+    publishDir "${projectDir}/data/indices", mode: "copy"
 
     input:
     val index_dir
@@ -75,7 +75,7 @@ process STAR_INDEX {
 process HISAT_INDEX {
     label "mem8"
     label "time_4h"
-    publishDir "${projectDir}/data/indices", mode: "symlink"
+    publishDir "${projectDir}/data/indices", mode: "copy"
 
     /*
     Summary: Build HISAT index
