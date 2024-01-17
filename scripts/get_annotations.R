@@ -16,7 +16,7 @@ devtools::load_all("./", export_all = FALSE)
 if (!interactive()) {
     # Define input arguments when running from bash
     parser <- setup_default_argparser(
-        description = "Get metadata",
+        description = "Getting pseudogenes",
     )
     args <- parser$parse_args()
 } else {
@@ -51,7 +51,14 @@ reference <- getBM(attributes = c(
 ), mart = grch37)
 
 log_info("Keeping only chromosomes of interest (1-22, X, Y)")
-tmp <- reference %>% filter(!startsWith(chromosome_name, "HG"), !startsWith(chromosome_name, "CHR"), !startsWith(chromosome_name, "GL"), !startsWith(chromosome_name, "JH"), !startsWith(chromosome_name, "MT"), !startsWith(chromosome_name, "HSCHR"))
+tmp <- reference %>% filter(
+    !startsWith(chromosome_name, "HG"),
+    !startsWith(chromosome_name, "CHR"),
+    !startsWith(chromosome_name, "GL"),
+    !startsWith(chromosome_name, "JH"),
+    !startsWith(chromosome_name, "MT"),
+    !startsWith(chromosome_name, "HSCHR")
+)
 
 log_info("Filtering for pseudo genes")
 pseudogenes_2 <- tmp %>%
@@ -60,6 +67,9 @@ pseudogenes_2 <- tmp %>%
 colnames(pseudogenes_2) <- c("chrom", "chromStart", "chromEnd")
 
 log_info("Writing output files...")
-write.table(pseudogenes_2, file = glue("{args$output_dir}/pseudo_genes_2.bed"), sep = "\t", row.names = FALSE, quote = FALSE)
+write.table(pseudogenes_2,
+    file = glue("{args$output_dir}/pseudo_genes_2.bed"),
+    sep = "\t", row.names = FALSE, quote = FALSE
+)
 
 log_info("COMPLETED!")

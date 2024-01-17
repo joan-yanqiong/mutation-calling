@@ -15,7 +15,7 @@ module load java/18
 
 # H4H
 base_dir="/cluster/projects/gaitigroup/Users/Joan/"
-nf_exec="/cluster/home/t119972uhn/nextflow"
+nf_exec="/cluster/home/t119972uhn/nextflow-23.04.3-all"
 work_dir="${base_dir}/nf_work_bulk_rnasq_mutation_calling"
 nf_profile="slurm"
 
@@ -23,7 +23,7 @@ echo "$(date)   Create work directory for nextflow if not existing..."
 mkdir -p "${work_dir}"
 
 echo "$(date)   Setup paths..."
-project_dir="${base_dir}/h4h-mutation-calling"
+project_dir="${base_dir}/mutation-calling"
 outdir="${project_dir}/nf-logs"
 run_name="test_set_rerun"
 
@@ -67,9 +67,6 @@ mkdir -p "${project_dir}/output/${run_name}/normal"
 mkdir -p "${project_dir}/output/${run_name}/tumor"
 mkdir -p "${project_dir}/output/${run_name}/mutations_prefiltered"
 
-    # -resume "665f4183-3717-4b49-9089-a99ba7b10b0f" \
-    # -resume "521efc17-89a1-463f-a710-308c1ab87dce" \
-
 # Start the pipeline
 echo "$(date)   Start the pipeline..."
 ${nf_exec} run ${project_dir} -with-report -with-trace \
@@ -95,6 +92,5 @@ ${nf_exec} run ${project_dir} -with-report -with-trace \
     --min_alt_counts ${min_alt_counts} \
     --outdir ${outdir} \
     --run_name ${run_name}
-
 
 echo "$(date)   COMPLETED!"

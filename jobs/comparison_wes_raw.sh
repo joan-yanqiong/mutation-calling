@@ -1,4 +1,4 @@
-project_dir="/Users/joankant/Desktop/gaitigroup/Users/Joan/h4h-mutation-calling"
+project_dir="/Users/joankant/Desktop/gaitigroup/Users/Joan/mutation-calling"
 wes_mutations="/Users/joankant/Library/CloudStorage/OneDrive-UHN/004_Projects/Lupus/NIHMS907788-supplement-10.xlsx"
 rna_mutations_dir="${project_dir}/output/mutations"
 output_dir="${project_dir}/output/figures"

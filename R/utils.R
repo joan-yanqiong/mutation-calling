@@ -29,3 +29,19 @@ create_dir <- function(dir_path) {
         log_warn(glue("Directory {dir_path} already exists."))
     }
 }
+
+#' Formatting VCF files
+#' @param file VCF file
+#' @return Data frame with formatted VCF file
+#' @description Format VCF files for downstream analysis
+#' @export
+format_mutations <- function(file) {
+    curr_vcf <- vcfR::read.vcfR(file, verbose = FALSE, check_keys = TRUE)
+    curr_info <- vcfR::extract_info_tidy(curr_vcf)
+    curr_gt <- vcfR::extract_gt_tidy(curr_vcf,)
+    curr_fix <- vcfR::getFIX(curr_vcf)
+    return(merge(curr_gt,
+        cbind(curr_info, curr_fix),
+        all.x = TRUE
+    ))
+}

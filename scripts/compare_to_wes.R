@@ -16,14 +16,14 @@ devtools::load_all("./", export_all = FALSE)
 if (!interactive()) {
     # Define input arguments when running from bash
     parser <- setup_default_argparser(
-        description = "Compare mutations",
+        description = "Get metadata",
     )
     args <- parser$parse_args()
 } else {
     # Provide arguments here for local runs
     args <- list()
     args$log_level <- 5
-    args$output_dir <- glue("{here::here()}/output/")
+    args$output_dir <- glue("{here::here()}/output/test_set_rerun/analysis/ad_dp")
 }
 
 # Set up logging
@@ -37,38 +37,123 @@ log_info("Create output directory...")
 create_dir(args$output_dir)
 
 # Load additional libraries
-sample_sheet <- read.csv(glue("{here::here()}/000_misc_local/sample_sheet.csv"))
+rnaseq_mutations <- readRDS("output/test_set_rerun/all_mutect_filtered_dp_ad.rds")
+wes_mutations <- readRDS("/Users/joankant/Desktop/gaitigroup/Users/Joan/wes-mutation-calling/output/test_set_rerun//all_mutect_filtered_dp_ad.rds")
+wes_mutations2 <- readRDS("/Users/joankant/Desktop/gaitigroup/Users/Joan/wes-mutation-calling/output/test_set_rerun/all_mutect2_filtered_dp_ad.rds")
+head(rnaseq_mutations)
 
-rnaseq_mut <- list.files(glue("{here::here()}/output/test_set/mutations_postprocessed"))
-rnaseq_samples <- str_remove(rnaseq_mut, "_mutations.txt")
+sample_ids <- rnaseq_mutations %>%
+    pull(wes_tumor_id) %>%
+    unique()
 
-wes_mut <- list.files("/Users/joankant/Desktop/gaitigroup/Users/Joan/wes-mutation-calling/output/wes_paired/mutations_gene_filtered")
-wes_samples <- str_remove(wes_mut, "_mutations_final.txt")
+rnaseq_mutations <- rnaseq_mutations %>% mutate(exact_mut = paste(Gene.refGene, CHROM, POS, REF, ALT, sep = "_"))
+wes_mutations <- wes_mutations %>% mutate(exact_mut = paste(Gene.refGene, CHROM, POS, REF, ALT, sep = "_"))
+wes_mutations2 <- wes_mutations2 %>% mutate(exact_mut = paste(Gene.refGene, CHROM, POS, REF, ALT, sep = "_"))
 
-avail_mutations <- sample_sheet %>% filter(rnaseq_condition_id %in% rnaseq_samples, wes_condition_id %in% wes_samples)
-
-for (i in seq_len(nrow(avail_mutations))) {
-    current_rna_sample <- avail_mutations$rnaseq_condition_id[i]
-    current_wes_sample <- avail_mutations$wes_condition_id[i]
-
-    current_rna_mut <- read.table(glue("{here::here()}/output/test_set/mutations_postprocessed/{current_rna_sample}_mutations.txt"), sep = "\t", header = TRUE) %>%
-        mutate(mutation_in_rna = 1) %>%
-        select(Chr, Start, End, Ref, Alt, mutation_in_rna)
-
-    current_wes_mut <- read.table(glue("/Users/joankant/Desktop/gaitigroup/Users/Joan/wes-mutation-calling/output/wes_paired/mutations_gene_filtered/{current_wes_sample}_mutations_final.txt"), sep = "\t", header = TRUE) %>%
-        mutate(mutation_in_wes = 1) %>%
-        select(Chr, Start, End, Ref, Alt, mutation_in_wes)
-
-    combi <- merge(current_rna_mut, current_wes_mut, by = c("Chr", "Start", "End", "Ref", "Alt"), all = TRUE)
-    combi[is.na(combi)] <- 0
-
-    rnaseq_mutations <- rownames(combi)[combi$mutation_in_rna == 1]
-    wes_mutations <- rownames(combi)[combi$mutation_in_wes == 1]
+log_info("Creating venn diagrams...")
+for (sample_id in sample_ids) {
+    curr_rna_mut <- rnaseq_mutations %>%
+        filter(wes_tumor_id == sample_id) %>%
+        pull(Gene.refGene) %>%
+        unique()
+    curr_wes_mut <- wes_mutations %>%
+        filter(wes_tumor_id == sample_id) %>%
+        pull(Gene.refGene) %>%
+        unique()
+    curr_wes_mut2 <- wes_mutations2 %>%
+        filter(wes_tumor_id == sample_id) %>%
+        pull(Gene.refGene) %>%
+        unique()
 
     create_venndiagram(
-        x = list(rnaseq_mutations, wes_mutations),
-        category.names = c("RNAseq", "WES"),
-        filename = glue("{args$output_dir}/venndiagram_{current_rna_sample}_{current_wes_sample}.png"),
-        main = glue("RNA_ID={current_rna_sample} vs WES_ID={current_wes_sample} \n(cond={avail_mutations$condition[i]})"), main.cex = 0.15
+        x = list(RNAseq = curr_rna_mut, WES_mut = curr_wes_mut, WES_mut2 = curr_wes_mut2), main = sample_id,
+        category.names = c("RNA", "WES (mutect)", "WES (mutect2)"),
+        filename = glue("{args$output_dir}/{sample_id}_venn_diagram.png")
+    )
+
+    curr_rna_mut <- rnaseq_mutations %>%
+        filter(wes_tumor_id == sample_id) %>%
+        pull(exact_mut)
+    curr_wes_mut <- wes_mutations %>%
+        filter(wes_tumor_id == sample_id) %>%
+        pull(exact_mut)
+    curr_wes_mut2 <- wes_mutations2 %>%
+        filter(wes_tumor_id == sample_id) %>%
+        pull(exact_mut)
+
+    create_venndiagram(
+        x = list(RNAseq = curr_rna_mut, WES_mut = curr_wes_mut, WES_mut2 = curr_wes_mut2), main = sample_id,
+        category.names = c("RNA", "WES (mutect)", "WES (mutect2)"),
+        filename = glue("{args$output_dir}/{sample_id}_exact_mut_venn_diagram.png")
     )
 }
+log_info("Remove log files...")
+sapply(list.files(args$output_dir, pattern = "*.log$", full.names = TRUE), file.remove)
+
+# Exact match
+rna_tmp <- rnaseq_mutations %>%
+    select(wes_tumor_id, Gene.refGene, exact_mut) %>%
+    mutate(in_RNAseq = 1)
+
+wes_tmp <- wes_mutations %>%
+    select(wes_tumor_id, Gene.refGene, exact_mut) %>%
+    mutate(in_WES = 1)
+
+wes_tmp2 <- wes_mutations2 %>%
+    select(wes_tumor_id, Gene.refGene, exact_mut) %>%
+    mutate(in_WES2 = 1)
+
+combined_exact <- merge(merge(rna_tmp, wes_tmp, all = TRUE), wes_tmp2, all = TRUE)
+combined_exact[is.na(combined_exact)] <- 0
+
+# Lenient match (only gene)
+rna_tmp <- rnaseq_mutations %>%
+    distinct(wes_tumor_id, Gene.refGene) %>%
+    mutate(in_RNAseq = 1)
+wes_tmp <- wes_mutations %>%
+    distinct(wes_tumor_id, Gene.refGene) %>%
+    mutate(in_WES = 1)
+wes_tmp2 <- wes_mutations2 %>%
+    distinct(wes_tumor_id, Gene.refGene) %>%
+    mutate(in_WES2 = 1)
+
+combined_lenient <- merge(merge(rna_tmp, wes_tmp, all = TRUE), wes_tmp2, all = TRUE)
+combined_lenient[is.na(combined_lenient)] <- 0
+
+# Determine overlap (lenient)
+common <- combined_lenient %>%
+    mutate(common_rna_wes = (in_RNAseq + in_WES == 2), common_rna_wes2 = (in_RNAseq + in_WES2 == 2)) %>%
+    group_by(wes_tumor_id) %>%
+    summarise(n_common_rna_wes = sum(common_rna_wes), n_common_rna_wes2 = sum(common_rna_wes2)) %>%
+    ungroup()
+
+n_genes <- combined_lenient %>%
+    mutate(common_rna_wes = (in_WES > 0), common_rna_wes2 = (in_WES2 > 0)) %>%
+    group_by(wes_tumor_id) %>%
+    summarise(n_common_rna_wes = sum(common_rna_wes), n_common_rna_wes2 = sum(common_rna_wes2)) %>%
+    ungroup() %>%
+    rename(n_genes_rna_wes = n_common_rna_wes, n_genes_rna_wes2 = n_common_rna_wes2)
+
+lenient_overlap <- merge(common, n_genes, by = "wes_tumor_id") %>%
+    mutate(overlap_rna_wes = 100 * n_common_rna_wes / n_genes_rna_wes, overlap_rna_wes2 = round(100 * n_common_rna_wes2 / n_genes_rna_wes2), 2)
+
+write.csv(lenient_overlap, glue("{args$output_dir}/overlap_perc_lenient.csv"))
+
+# Determine overlap (exact)
+common <- combined_exact %>%
+    mutate(common_rna_wes = (in_RNAseq + in_WES == 2), common_rna_wes2 = (in_RNAseq + in_WES2 == 2)) %>%
+    group_by(wes_tumor_id) %>%
+    summarise(n_common_rna_wes = sum(common_rna_wes), n_common_rna_wes2 = sum(common_rna_wes2)) %>%
+    ungroup()
+
+n_genes <- combined_exact %>%
+    mutate(common_rna_wes = (in_WES > 0), common_rna_wes2 = (in_WES2 > 0)) %>%
+    group_by(wes_tumor_id) %>%
+    summarise(n_common_rna_wes = sum(common_rna_wes), n_common_rna_wes2 = sum(common_rna_wes2)) %>%
+    ungroup() %>%
+    rename(n_genes_rna_wes = n_common_rna_wes, n_genes_rna_wes2 = n_common_rna_wes2)
+
+exact_overlap <- merge(common, n_genes, by = "wes_tumor_id") %>%
+    mutate(overlap_rna_wes = 100 * n_common_rna_wes / n_genes_rna_wes, overlap_rna_wes2 = round(100 * n_common_rna_wes2 / n_genes_rna_wes2), 2)
+
+write.csv(exact_overlap, glue("{args$output_dir}/overlap_perc_exact.csv"))

@@ -18,7 +18,7 @@ if (Sys.info()[["sysname"]] == "Darwin") {
     Sys.setenv(RENV_PATHS_CACHE = paste0("~/renv_cache"))
 }
 
-.libPaths(c(.libPaths(), "~/Desktop/gaitigroup/Users/Joan/h4h-mutation-calling/renv/library/R-4.2/x86_64-apple-darwin13.4.0"))
+.libPaths(c(.libPaths(), "~/Desktop/gaitigroup/Users/Joan/mutation-calling/renv/library/R-4.2/x86_64-apple-darwin13.4.0"))
 
 options(
     renv.config.sandbox.enabled = FALSE,

@@ -3,6 +3,7 @@
 export(create_dir)
 export(create_venndiagram)
 export(custom_theme)
+export(format_mutations)
 export(get_name)
 export(init_logging)
 export(log_debug)

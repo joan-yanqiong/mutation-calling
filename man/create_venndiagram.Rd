@@ -4,7 +4,17 @@
 \alias{create_venndiagram}
 \title{Create venndiagram}
 \usage{
-create_venndiagram(x, category.names, filename, main = "", ...)
+create_venndiagram(
+  x,
+  category.names,
+  filename,
+  main = "",
+  main.cex = 0.3,
+  cat.cex = 0.15,
+  height = 480,
+  width = 800,
+  ...
+)
 }
 \arguments{
 \item{x}{A list of vectors (e.g., integers, chars), with each component corresponding 
@@ -15,6 +25,12 @@ create_venndiagram(x, category.names, filename, main = "", ...)
 \item{filename}{Filename for image output, or if NULL returns the grid object itself}
 
 \item{main}{Character giving the main title of the diagram}
+
+\item{main.cex}{Number giving the cex (font size) of the main title}
+
+\item{height}{Integer giving the height of the output figure in units}
+
+\item{width}{Integer giving the width of the output figure in units}
 
 \item{...}{A series of graphical parameters tweaking the plot. See below for details}
 }
